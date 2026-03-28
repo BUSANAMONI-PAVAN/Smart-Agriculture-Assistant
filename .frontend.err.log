@@ -1,0 +1,54 @@
+[2m4:33:02 am[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Failed to load url /src/components/Header.tsx (resolved id: C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/src/components/Header.tsx) in C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/src/App.tsx. Does the file exist?
+[2m4:33:36 am[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Failed to load url /src/pages/Dashboard.tsx (resolved id: C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/src/pages/Dashboard.tsx) in C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/src/App.tsx. Does the file exist?
+[2m4:34:39 am[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Failed to load url /src/pages/Login.tsx (resolved id: C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/src/pages/Login.tsx) in C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/src/App.tsx. Does the file exist?
+[2m4:49:06 am[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Failed to resolve import "./pages/Login" from "src/App.tsx". Does the file exist?
+  Plugin: [35mvite:import-analysis[39m
+  File: [36mC:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/src/App.tsx[39m:8:22
+[33m  8  |  import { Header } from "./components/Header";
+  9  |  import { ProtectedRoute } from "./components/ProtectedRoute";
+  10 |  import { Login } from "./pages/Login";
+     |                         ^
+  11 |  import { Dashboard } from "./pages/Dashboard";
+  12 |  import { Weather } from "./pages/Weather";[39m
+[2m4:51:21 am[22m [31m[1m[vite][22m[39m [31m[2m(client)[22m[39m Pre-transform error: Failed to load url /src/pages/AdminPanel.tsx (resolved id: C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/src/pages/AdminPanel.tsx) in C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/src/App.tsx. Does the file exist?
+[2m9:23:10 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/auth/farmer/register[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m9:23:33 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/auth/farmer/register[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m9:23:36 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/auth/farmer/register[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m9:23:36 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/auth/farmer/register[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m9:23:37 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/auth/farmer/register[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m9:23:38 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/auth/farmer/register[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m9:23:50 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/auth/farmer/register[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m9:23:52 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/auth/farmer/register[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m9:23:52 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/auth/farmer/register[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m9:24:23 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/auth/admin/register[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+^C^C

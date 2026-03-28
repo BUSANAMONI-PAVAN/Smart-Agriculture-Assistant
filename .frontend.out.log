@@ -1,0 +1,629 @@
+
+> react-vite-tailwind@0.0.0 dev
+> vite
+
+
+  [32m[1mVITE[22m v7.2.4[39m  [2mready in [0m[1m1163[22m[2m[0m ms[22m
+
+  [32m➜[39m  [1mLocal[22m:   [36mhttp://localhost:[1m5173[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://172.26.224.1:[1m5173[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.56.1:[1m5173[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.56.2:[1m5173[22m/[39m
+  [32m➜[39m  [1mNetwork[22m: [36mhttp://192.168.0.123:[1m5173[22m/[39m
+[2m[32m  ➜[39m[22m[2m  press [22m[1mh + enter[22m[2m to show help[22m
+[2m10:58:59 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m10:58:59 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m10:59:00 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m10:59:20 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:00:15 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:00:24 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:00:33 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:00:50 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:02:36 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:02:48 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:03:22 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:03:49 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:04:02 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:04:16 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:04:25 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:04:49 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css, /src/contexts/NotificationContext.tsx, /src/pages/DiseaseDetect.tsx, /src/pages/Profile.tsx, /src/pages/NotificationsDebug.tsx, /src/pages/AdminPanel.tsx, /src/pages/CropRecommend.tsx, /src/contexts/AuthContext.tsx, /src/pages/Weather.tsx, /src/pages/Login.tsx, /src/pages/MarketPrices.tsx[22m
+[2m11:04:50 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [33mhmr invalidate [39m[2m/src/contexts/NotificationContext.tsx[22m Could not Fast Refresh ("useNotifications" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m11:04:50 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/pages/Dashboard.tsx, /src/components/NotificationCenter.tsx[22m
+[2m11:04:50 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [33mhmr invalidate [39m[2m/src/contexts/AuthContext.tsx[22m Could not Fast Refresh ("useAuth" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m11:04:50 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/contexts/NotificationContext.tsx, /src/components/ProtectedRoute.tsx, /src/pages/Dashboard.tsx, /src/components/Header.tsx, /src/pages/AdminPanel.tsx, /src/pages/Login.tsx[22m
+[2m11:06:03 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
+[2m11:06:19 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.tsx, /src/index.css[22m
+[2m11:06:33 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminPanel.tsx, /src/index.css[22m
+[2m11:06:46 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminPanel.tsx, /src/index.css[22m
+[2m11:07:06 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminPanel.tsx, /src/index.css[22m
+[2m11:07:41 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminPanel.tsx, /src/index.css[22m
+[2m11:07:55 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminPanel.tsx, /src/index.css[22m
+[2m11:08:10 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/contexts/NotificationContext.tsx, /src/index.css[22m
+[2m11:08:28 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32m✨ new dependencies optimized: [33msocket.io-client[32m[39m
+[2m11:08:28 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32m✨ optimized dependencies changed. reloading[39m
+[2m11:08:28 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [33mhmr invalidate [39m[2m/src/contexts/NotificationContext.tsx[22m Could not Fast Refresh ("useNotifications" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m11:08:28 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/pages/Dashboard.tsx, /src/components/NotificationCenter.tsx[22m
+[2m11:08:28 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Weather.tsx, /src/index.css[22m
+[2m11:08:42 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Weather.tsx, /src/index.css[22m
+[2m11:08:51 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Weather.tsx, /src/index.css[22m
+[2m11:09:10 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Weather.tsx, /src/index.css[22m
+[2m11:09:42 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
+[2m11:10:07 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:10:26 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:10:47 am[22m [36m[1m[vite][22m[39m [32mvite.config.ts changed, restarting server...[39m
+[2m11:10:47 am[22m [36m[1m[vite][22m[39m server restarted.
+[2m11:10:49 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+Error: write ECONNABORTED
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at writeChunk (file:///C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/node_modules/vite/dist/node/chunks/config.js:22260:12)
+    at IncomingMessage.<anonymous> (file:///C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/node_modules/vite/dist/node/chunks/config.js:22278:6)
+    at IncomingMessage.emit (node:events:520:22)
+    at endReadableNT (node:internal/streams/readable:1729:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+[2m11:10:49 am[22m [31m[1m[vite][22m[39m [31mws proxy socket error:[39m
+Error: write ECONNABORTED
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at writeChunk (file:///C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/node_modules/vite/dist/node/chunks/config.js:22260:12)
+    at IncomingMessage.<anonymous> (file:///C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/node_modules/vite/dist/node/chunks/config.js:22278:6)
+    at IncomingMessage.emit (node:events:520:22)
+    at endReadableNT (node:internal/streams/readable:1729:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+[2m11:10:49 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+Error: write ECONNABORTED
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at writeChunk (file:///C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/node_modules/vite/dist/node/chunks/config.js:22260:12)
+    at IncomingMessage.<anonymous> (file:///C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/node_modules/vite/dist/node/chunks/config.js:22278:6)
+    at IncomingMessage.emit (node:events:520:22)
+    at endReadableNT (node:internal/streams/readable:1729:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+[2m11:10:49 am[22m [31m[1m[vite][22m[39m [31mws proxy socket error:[39m
+Error: write ECONNABORTED
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at writeChunk (file:///C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/node_modules/vite/dist/node/chunks/config.js:22260:12)
+    at IncomingMessage.<anonymous> (file:///C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/node_modules/vite/dist/node/chunks/config.js:22278:6)
+    at IncomingMessage.emit (node:events:520:22)
+    at endReadableNT (node:internal/streams/readable:1729:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+[2m11:10:52 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+Error: write ECONNABORTED
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at writeChunk (file:///C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/node_modules/vite/dist/node/chunks/config.js:22260:12)
+    at IncomingMessage.<anonymous> (file:///C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/node_modules/vite/dist/node/chunks/config.js:22278:6)
+    at IncomingMessage.emit (node:events:520:22)
+    at endReadableNT (node:internal/streams/readable:1729:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+[2m11:10:52 am[22m [31m[1m[vite][22m[39m [31mws proxy socket error:[39m
+Error: write ECONNABORTED
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at writeChunk (file:///C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/node_modules/vite/dist/node/chunks/config.js:22260:12)
+    at IncomingMessage.<anonymous> (file:///C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/node_modules/vite/dist/node/chunks/config.js:22278:6)
+    at IncomingMessage.emit (node:events:520:22)
+    at endReadableNT (node:internal/streams/readable:1729:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+[2m11:11:10 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+Error: write ECONNABORTED
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at writeChunk (file:///C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/node_modules/vite/dist/node/chunks/config.js:22260:12)
+    at IncomingMessage.<anonymous> (file:///C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/node_modules/vite/dist/node/chunks/config.js:22278:6)
+    at IncomingMessage.emit (node:events:520:22)
+    at endReadableNT (node:internal/streams/readable:1729:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+[2m11:11:10 am[22m [31m[1m[vite][22m[39m [31mws proxy socket error:[39m
+Error: write ECONNABORTED
+    at afterWriteDispatched (node:internal/stream_base_commons:159:15)
+    at writeGeneric (node:internal/stream_base_commons:150:3)
+    at Socket._writeGeneric (node:net:966:11)
+    at Socket._write (node:net:978:8)
+    at writeOrBuffer (node:internal/streams/writable:570:12)
+    at _write (node:internal/streams/writable:499:10)
+    at Writable.write (node:internal/streams/writable:508:10)
+    at writeChunk (file:///C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/node_modules/vite/dist/node/chunks/config.js:22260:12)
+    at IncomingMessage.<anonymous> (file:///C:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/node_modules/vite/dist/node/chunks/config.js:22278:6)
+    at IncomingMessage.emit (node:events:520:22)
+    at endReadableNT (node:internal/streams/readable:1729:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:90:21)
+[2m11:11:32 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/alerts/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4YWQ3NDFlZi1lNzI5LTQ4MTMtOGJjYy01ZWI1MjJiMzQ1YTAiLCJyb2xlIjoiZmFybWVyIiwidHlwZSI6ImFjY2VzcyIsIm5hbWUiOiJBQkNEIiwiaWF0IjoxNzc0Njc0NDA0LCJleHAiOjE3NzUyNzkyMDR9.gzsfMU0JL3XnJhG06WLW4aA0jeIRsoFFm26ZA0m4vIs[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m11:11:34 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:11:40 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:11:46 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:11:52 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:11:58 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:12:04 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:12:10 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:12:16 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:12:19 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/alerts/schedule/tick[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:12:19 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/alerts[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:12:22 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:12:28 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:13:10 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m11:13:11 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:13:13 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:13:17 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:13:23 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:13:29 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:13:35 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:13:41 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:13:47 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:13:49 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/alerts/schedule/tick[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:13:49 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/alerts[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:13:53 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:13:59 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:14:05 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:14:11 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:14:17 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:14:23 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:14:29 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:14:35 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:14:41 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:15:40 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:15:44 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:15:56 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:15:56 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:16:14 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m11:16:15 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:16:49 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:17:05 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m11:17:06 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:17:08 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:19:24 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.tsx, /src/index.css[22m
+[2m11:19:55 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.tsx, /src/index.css[22m
+[2m11:19:56 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.tsx, /src/index.css[22m
+[2m11:20:17 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.tsx, /src/index.css[22m
+[2m11:21:04 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.tsx, /src/index.css[22m
+[2m11:21:44 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.tsx, /src/index.css[22m
+[2m11:21:45 am[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\src\pages\Dashboard.tsx: Unexpected token, expected ":" (236:28)
+
+[0m [90m 234 |[31m           [33m<[31m[33mp[31m className[33m=[31m[32m"text-xs text-gray-500"[31m[33m>[31m[33mWeather[31m [33mSnapshot[31m[33m<[31m[33m/[31m[33mp[31m[33m>[31m
+ [90m 235 |[31m           [33m<[31m[33mp[31m className[33m=[31m[32m"text-lg font-semibold text-gray-900"[31m[33m>[31m
+[31m[1m>[22m[31m[90m 236 |[31m             {weatherSnap [33m?[31m ${weatherSnap[33m.[31mtempC} [33mC[31m [33m/[31m [33mRain[31m [33m%[31m [33m:[31m [32m'Loading...'[31m}
+ [90m     |[31m                             [31m[1m^[22m[31m
+ [90m 237 |[31m           [33m<[31m[33m/[31m[33mp[31m[33m>[31m
+ [90m 238 |[31m         [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 239 |[31m       [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/src/pages/Dashboard.tsx[39m:236:28
+[33m  234 |            <p className="text-xs text-gray-500">Weather Snapshot</p>
+  235 |            <p className="text-lg font-semibold text-gray-900">
+  236 |              {weatherSnap ? ${weatherSnap.tempC} C / Rain % : 'Loading...'}
+      |                              ^
+  237 |            </p>
+  238 |          </div>[39m
+      at constructor (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:365:19)
+      at TypeScriptParserMixin.raise (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:6599:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:6619:16)
+      at TypeScriptParserMixin.expect (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:6899:12)
+      at TypeScriptParserMixin.parseConditional (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10892:12)
+      at TypeScriptParserMixin.parseConditional (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9603:18)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10885:17)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10831:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9786:20)
+      at TypeScriptParserMixin.parseExpressionBase (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10784:23)
+      at C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10780:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:12426:12)
+      at TypeScriptParserMixin.parseExpression (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10780:17)
+      at TypeScriptParserMixin.jsxParseExpressionContainer (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4632:31)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4711:36)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4698:32)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4698:32)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4698:32)
+      at TypeScriptParserMixin.jsxParseElement (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4749:17)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4759:19)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11081:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11066:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11046:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9837:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10899:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10904:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10881:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10831:21)
+      at C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9775:39
+      at TypeScriptParserMixin.tryParse (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:6907:20)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9775:18)
+      at C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10800:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:12426:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10800:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:12493:17)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11675:28)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11331:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4764:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11081:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11066:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11046:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9837:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10899:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10904:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10881:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10831:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9786:20)
+      at TypeScriptParserMixin.parseExpressionBase (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10784:23)
+      at C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10780:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:12421:16)
+[2m11:21:45 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.tsx, /src/index.css[22m
+[2m11:21:46 am[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\src\pages\Dashboard.tsx: Unexpected token, expected ":" (236:28)
+
+[0m [90m 234 |[31m           [33m<[31m[33mp[31m className[33m=[31m[32m"text-xs text-gray-500"[31m[33m>[31m[33mWeather[31m [33mSnapshot[31m[33m<[31m[33m/[31m[33mp[31m[33m>[31m
+ [90m 235 |[31m           [33m<[31m[33mp[31m className[33m=[31m[32m"text-lg font-semibold text-gray-900"[31m[33m>[31m
+[31m[1m>[22m[31m[90m 236 |[31m             {weatherSnap [33m?[31m ${weatherSnap[33m.[31mtempC} [33mC[31m [33m/[31m [33mRain[31m [33m%[31m [33m:[31m [32m'Loading...'[31m}
+ [90m     |[31m                             [31m[1m^[22m[31m
+ [90m 237 |[31m           [33m<[31m[33m/[31m[33mp[31m[33m>[31m
+ [90m 238 |[31m         [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 239 |[31m       [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/src/pages/Dashboard.tsx[39m:236:28
+[33m  234 |            <p className="text-xs text-gray-500">Weather Snapshot</p>
+  235 |            <p className="text-lg font-semibold text-gray-900">
+  236 |              {weatherSnap ? ${weatherSnap.tempC} C / Rain % : 'Loading...'}
+      |                              ^
+  237 |            </p>
+  238 |          </div>[39m
+      at constructor (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:365:19)
+      at TypeScriptParserMixin.raise (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:6599:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:6619:16)
+      at TypeScriptParserMixin.expect (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:6899:12)
+      at TypeScriptParserMixin.parseConditional (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10892:12)
+      at TypeScriptParserMixin.parseConditional (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9603:18)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10885:17)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10831:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9786:20)
+      at TypeScriptParserMixin.parseExpressionBase (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10784:23)
+      at C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10780:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:12426:12)
+      at TypeScriptParserMixin.parseExpression (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10780:17)
+      at TypeScriptParserMixin.jsxParseExpressionContainer (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4632:31)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4711:36)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4698:32)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4698:32)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4698:32)
+      at TypeScriptParserMixin.jsxParseElement (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4749:17)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4759:19)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11081:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11066:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11046:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9837:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10899:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10904:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10881:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10831:21)
+      at C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9775:39
+      at TypeScriptParserMixin.tryParse (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:6907:20)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9775:18)
+      at C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10800:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:12426:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10800:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:12493:17)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11675:28)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11331:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4764:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11081:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11066:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11046:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9837:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10899:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10904:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10881:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10831:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9786:20)
+      at TypeScriptParserMixin.parseExpressionBase (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10784:23)
+      at C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10780:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:12421:16)
+[2m11:21:52 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:22:25 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.tsx, /src/index.css[22m
+[2m11:22:25 am[22m [31m[1m[vite][22m[39m [31mInternal server error: C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\src\pages\Dashboard.tsx: Unexpected token, expected ":" (236:28)
+
+[0m [90m 234 |[31m           [33m<[31m[33mp[31m className[33m=[31m[32m"text-xs text-gray-500"[31m[33m>[31m[33mWeather[31m [33mSnapshot[31m[33m<[31m[33m/[31m[33mp[31m[33m>[31m
+ [90m 235 |[31m           [33m<[31m[33mp[31m className[33m=[31m[32m"text-lg font-semibold text-gray-900"[31m[33m>[31m
+[31m[1m>[22m[31m[90m 236 |[31m             {weatherSnap [33m?[31m ${weatherSnap[33m.[31mtempC} [33mC[31m [33m/[31m [33mRain[31m [33m%[31m [33m:[31m [32m'Loading...'[31m}
+ [90m     |[31m                             [31m[1m^[22m[31m
+ [90m 237 |[31m           [33m<[31m[33m/[31m[33mp[31m[33m>[31m
+ [90m 238 |[31m         [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m
+ [90m 239 |[31m       [33m<[31m[33m/[31m[33mdiv[31m[33m>[31m[0m[39m
+  Plugin: [35mvite:react-babel[39m
+  File: [36mC:/Users/peete/OneDrive/Desktop/Projects/Smart-Agriculture-Assistant/src/pages/Dashboard.tsx[39m:236:28
+[33m  234 |            <p className="text-xs text-gray-500">Weather Snapshot</p>
+  235 |            <p className="text-lg font-semibold text-gray-900">
+  236 |              {weatherSnap ? ${weatherSnap.tempC} C / Rain % : 'Loading...'}
+      |                              ^
+  237 |            </p>
+  238 |          </div>[39m
+      at constructor (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:365:19)
+      at TypeScriptParserMixin.raise (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:6599:19)
+      at TypeScriptParserMixin.unexpected (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:6619:16)
+      at TypeScriptParserMixin.expect (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:6899:12)
+      at TypeScriptParserMixin.parseConditional (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10892:12)
+      at TypeScriptParserMixin.parseConditional (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9603:18)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10885:17)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10831:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9786:20)
+      at TypeScriptParserMixin.parseExpressionBase (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10784:23)
+      at C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10780:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:12426:12)
+      at TypeScriptParserMixin.parseExpression (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10780:17)
+      at TypeScriptParserMixin.jsxParseExpressionContainer (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4632:31)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4711:36)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4698:32)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4698:32)
+      at TypeScriptParserMixin.jsxParseElementAt (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4698:32)
+      at TypeScriptParserMixin.jsxParseElement (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4749:17)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4759:19)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11081:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11066:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11046:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9837:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10899:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10904:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10881:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10831:21)
+      at C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9775:39
+      at TypeScriptParserMixin.tryParse (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:6907:20)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9775:18)
+      at C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10800:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:12426:12)
+      at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10800:17)
+      at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:12493:17)
+      at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11675:28)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11331:23)
+      at TypeScriptParserMixin.parseExprAtom (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:4764:20)
+      at TypeScriptParserMixin.parseExprSubscripts (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11081:23)
+      at TypeScriptParserMixin.parseUpdate (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11066:21)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:11046:23)
+      at TypeScriptParserMixin.parseMaybeUnary (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9837:18)
+      at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10899:61)
+      at TypeScriptParserMixin.parseExprOps (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10904:23)
+      at TypeScriptParserMixin.parseMaybeConditional (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10881:23)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10831:21)
+      at TypeScriptParserMixin.parseMaybeAssign (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:9786:20)
+      at TypeScriptParserMixin.parseExpressionBase (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10784:23)
+      at C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:10780:39
+      at TypeScriptParserMixin.allowInAnd (C:\Users\peete\OneDrive\Desktop\Projects\Smart-Agriculture-Assistant\node_modules\@babel\parser\lib\index.js:12421:16)
+[2m11:22:46 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.tsx, /src/index.css[22m
+[2m11:32:46 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:33:01 am[22m [31m[1m[vite][22m[39m [31mhttp proxy error: /api/v1/alerts/stream?token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI4YWQ3NDFlZi1lNzI5LTQ4MTMtOGJjYy01ZWI1MjJiMzQ1YTAiLCJyb2xlIjoiZmFybWVyIiwidHlwZSI6ImFjY2VzcyIsIm5hbWUiOiJBQkNEIiwiaWF0IjoxNzc0Njc3NDg0LCJleHAiOjE3NzUyODIyODR9.wWo3INHFlu-LgZlKHR09YF7_uKJRzoKdTAMaXVMM44c[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m11:33:01 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+Error: read ECONNRESET
+    at TCP.onStreamRead (node:internal/stream_base_commons:216:20)
+[2m11:33:03 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:33:06 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:33:11 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:33:17 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:33:23 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:33:29 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:33:35 am[22m [31m[1m[vite][22m[39m [31mws proxy error:[39m
+AggregateError [ECONNREFUSED]: 
+    at internalConnectMultiple (node:net:1134:18)
+    at afterConnectMultiple (node:net:1715:7)
+[2m11:38:44 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/index.css[22m
+[2m11:38:55 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/GlossyBackdrop.tsx, /src/index.css[22m
+[2m11:39:36 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:57:28 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:57:44 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:59:30 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m11:59:35 am[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:00:09 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:00:09 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:00:26 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:00:41 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:00:47 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:01:07 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:01:22 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:01:56 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:02:21 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:02:31 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:02:42 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:03:03 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:03:16 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:03:32 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:03:48 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:03:59 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:04:20 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:04:37 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:04:57 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:05:14 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:05:30 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:05:39 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:05:53 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:06:21 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:06:32 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:06:51 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MarketPrices.tsx, /src/contexts/AuthContext.tsx, /src/contexts/NotificationContext.tsx, /src/pages/AdminPanel.tsx, /src/pages/NotificationsDebug.tsx, /src/pages/CropRecommend.tsx, /src/pages/DiseaseDetect.tsx, /src/pages/Profile.tsx, /src/pages/AIAssistant.tsx, /src/pages/Weather.tsx, /src/pages/Login.tsx, /src/pages/Dashboard.tsx, /src/index.css[22m
+[2m12:06:52 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [33mhmr invalidate [39m[2m/src/contexts/AuthContext.tsx[22m Could not Fast Refresh ("useAuth" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m12:06:52 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/components/Header.tsx, /src/components/ProtectedRoute.tsx, /src/contexts/NotificationContext.tsx, /src/pages/AdminPanel.tsx, /src/pages/Dashboard.tsx, /src/pages/Login.tsx[22m
+[2m12:06:52 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [33mhmr invalidate [39m[2m/src/contexts/NotificationContext.tsx[22m Could not Fast Refresh ("useNotifications" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m12:06:52 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/pages/Dashboard.tsx, /src/components/NotificationCenter.tsx[22m
+[2m12:07:14 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminPanel.tsx, /src/index.css[22m
+[2m12:07:30 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminPanel.tsx, /src/index.css[22m
+[2m12:07:49 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminPanel.tsx, /src/index.css[22m
+[2m12:08:11 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminPanel.tsx, /src/index.css[22m
+[2m12:08:42 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Weather.tsx, /src/index.css[22m
+[2m12:09:48 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AIAssistant.tsx, /src/index.css[22m
+[2m12:10:12 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminPanel.tsx, /src/index.css[22m
+[2m12:10:22 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/MarketPrices.tsx, /src/contexts/AuthContext.tsx, /src/contexts/NotificationContext.tsx, /src/pages/AdminPanel.tsx, /src/pages/NotificationsDebug.tsx, /src/pages/CropRecommend.tsx, /src/pages/DiseaseDetect.tsx, /src/pages/Profile.tsx, /src/pages/AIAssistant.tsx, /src/pages/Weather.tsx, /src/pages/Login.tsx, /src/pages/Dashboard.tsx, /src/index.css[22m
+[2m12:10:22 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [33mhmr invalidate [39m[2m/src/contexts/AuthContext.tsx[22m Could not Fast Refresh ("useAuth" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m12:10:22 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/components/Header.tsx, /src/components/ProtectedRoute.tsx, /src/contexts/NotificationContext.tsx, /src/pages/AdminPanel.tsx, /src/pages/Dashboard.tsx, /src/pages/Login.tsx[22m
+[2m12:10:22 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [33mhmr invalidate [39m[2m/src/contexts/NotificationContext.tsx[22m Could not Fast Refresh ("useNotifications" export is incompatible). Learn more at https://github.com/vitejs/vite-plugin-react/tree/main/packages/plugin-react#consistent-components-exports
+[2m12:10:22 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/App.tsx, /src/pages/Dashboard.tsx, /src/components/NotificationCenter.tsx[22m
+[2m12:10:32 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:13:29 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/components/ProtectedRoute.tsx, /src/index.css[22m
+[2m12:13:42 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/AdminPanel.tsx, /src/index.css[22m
+[2m12:13:55 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/pages/Dashboard.tsx, /src/index.css[22m
+[2m12:15:19 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:15:35 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:15:50 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:51:50 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:51:52 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:52:07 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:52:11 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:59:37 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m12:59:58 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m1:00:53 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m
+[2m1:04:15 pm[22m [36m[1m[vite][22m[39m [90m[2m(client)[22m[39m [32mhmr update [39m[2m/src/index.css[22m

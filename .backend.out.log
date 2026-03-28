@@ -1,0 +1,5 @@
+
+> smart-agriculture-backend@1.0.0 start
+> node src/server.js
+
+Smart Agriculture API listening on 4000

@@ -1,0 +1,7 @@
+{
+    "project": "Smart-Agriculture-Assistant",
+    "type": "fullstack",
+    "framework": "vite-react",
+    "backend": "node",
+    "autoStartAgent": true
+}
