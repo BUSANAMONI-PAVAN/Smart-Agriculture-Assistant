@@ -3,7 +3,11 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "workspaces": [
+    "backend"
+  ],
   "scripts": {
+    "start": "node src/server.js",
     "dev": "vite",
     "dev:frontend": "vite",
     "dev:backend": "npm --prefix backend run dev",

@@ -26,7 +26,6 @@ import { marketplaceRouter } from './modules/marketplace/marketplace.routes.js';
 import { communityRouter } from './modules/community/community.routes.js';
 import { iotRouter } from './modules/iot/iot.routes.js';
 import { transparencyRouter } from './modules/transparency/transparency.routes.js';
-import { startAlertScheduler } from './modules/alerts/alerts.scheduler.js';
 import { isAppError } from './lib/errors.js';
 import { getMetricsSnapshot, observeHttpRequest } from './lib/metrics.js';
 
@@ -134,8 +133,6 @@ app.use('/api/ai', attachRequestAuth, requireAuth, aiRouter);
 app.get('/api/v1/metrics', requireAuth, requireAdmin, (_req, res) => {
   res.json(getMetricsSnapshot());
 });
-
-startAlertScheduler();
 
 app.use((error, req, res, _next) => {
   if (req.log) {

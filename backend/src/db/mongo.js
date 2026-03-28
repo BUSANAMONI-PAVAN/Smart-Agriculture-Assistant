@@ -1,18 +1,38 @@
 import mongoose from 'mongoose';
 
 let initPromise = null;
+let warnedAboutMysqlFallback = false;
 
 function getMongoUri() {
-  const mongoUri = process.env.MONGO_URI?.trim();
+  return process.env.MONGO_URI?.trim() || null;
+}
 
-  if (!mongoUri) {
-    throw new Error('MONGO_URI is not set. Add your MongoDB connection string before starting the backend.');
+async function initMysqlFallback() {
+  const { initDatabase: initMysqlDatabase } = await import('./mysql.js');
+
+  if (!warnedAboutMysqlFallback) {
+    console.warn('MONGO_URI is not set. Falling back to the existing MySQL database bootstrap.');
+    warnedAboutMysqlFallback = true;
   }
 
-  return mongoUri;
+  await initMysqlDatabase();
+  return null;
 }
 
 export async function initDatabase() {
+  const mongoUri = getMongoUri();
+
+  if (!mongoUri) {
+    if (!initPromise) {
+      initPromise = initMysqlFallback().catch((error) => {
+        initPromise = null;
+        throw error;
+      });
+    }
+
+    return initPromise;
+  }
+
   if (mongoose.connection.readyState === 1) {
     return mongoose.connection;
   }
@@ -21,7 +41,6 @@ export async function initDatabase() {
     return initPromise;
   }
 
-  const mongoUri = getMongoUri();
   const serverSelectionTimeoutMS = Number(process.env.MONGO_SERVER_SELECTION_TIMEOUT_MS || 10000);
 
   initPromise = mongoose
