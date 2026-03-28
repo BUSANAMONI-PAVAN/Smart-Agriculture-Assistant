@@ -1,9 +1,11 @@
+import { API_BASE_URL } from '../config/backend';
+
 export type ApiResponse<T> = {
   data: T;
   source: 'api' | 'cache';
 };
 
-const API_BASE = '/api/v1';
+const API_BASE = API_BASE_URL;
 
 export type UserRole = 'admin' | 'farmer';
 export type AlertType = 'weather' | 'disease' | 'crop' | 'lifecycle' | 'market' | 'system';

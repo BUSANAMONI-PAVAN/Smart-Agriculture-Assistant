@@ -1,5 +1,6 @@
 import { createContext, ReactNode, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { io, type Socket } from 'socket.io-client';
+import { ALERTS_STREAM_URL, BACKEND_ORIGIN } from '../config/backend';
 import { api } from '../services/api';
 import { createAlert, readAlerts } from '../utils/alertEngine';
 import { useAuth } from './AuthContext';
@@ -144,7 +145,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
 
     let socket: Socket | null = null;
     try {
-      socket = io('/', {
+      socket = io(BACKEND_ORIGIN || '/', {
         auth: { token },
         transports: ['websocket', 'polling'],
       });
@@ -155,7 +156,7 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       socket = null;
     }
 
-    const stream = new EventSource(`/api/v1/alerts/stream?token=${encodeURIComponent(token)}`);
+    const stream = new EventSource(`${ALERTS_STREAM_URL}?token=${encodeURIComponent(token)}`);
 
     const handleAlert = () => {
       void refreshNotifications();
