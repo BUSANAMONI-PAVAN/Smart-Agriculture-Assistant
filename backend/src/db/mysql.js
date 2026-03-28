@@ -16,8 +16,65 @@ const DEFAULT_FEATURE_FLAGS = [
 let pool = null;
 let initPromise = null;
 
-function getRootConfig(includeDatabase = false) {
+function normalizeConnectionString(value) {
+  if (!value) {
+    return null;
+  }
+
+  const trimmed = value.trim();
+
+  if (!trimmed) {
+    return null;
+  }
+
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("'") && trimmed.endsWith("'"))
+  ) {
+    return trimmed.slice(1, -1).trim() || null;
+  }
+
+  return trimmed;
+}
+
+function getConnectionStringConfig(includeDatabase = false) {
+  const connectionString = normalizeConnectionString(
+    process.env.MYSQL_URL || process.env.DATABASE_URL || process.env.MONGO_URI,
+  );
+
+  if (!connectionString) {
+    return null;
+  }
+
+  let parsed;
+
+  try {
+    parsed = new URL(connectionString);
+  } catch {
+    return null;
+  }
+
+  if (!['mysql:', 'mysql2:'].includes(parsed.protocol)) {
+    return null;
+  }
+
+  const databaseFromUrl = parsed.pathname.replace(/^\//, '');
+
   return {
+    host: parsed.hostname || '127.0.0.1',
+    port: Number(parsed.port || 3306),
+    user: decodeURIComponent(parsed.username || 'root'),
+    password: decodeURIComponent(parsed.password || ''),
+    database: includeDatabase ? decodeURIComponent(databaseFromUrl || process.env.DB_NAME || 'smart_agriculture') : undefined,
+    waitForConnections: true,
+    connectionLimit: 10,
+    namedPlaceholders: true,
+    decimalNumbers: true,
+  };
+}
+
+function getRootConfig(includeDatabase = false) {
+  return getConnectionStringConfig(includeDatabase) || {
     host: process.env.DB_HOST || '127.0.0.1',
     port: Number(process.env.DB_PORT || 3306),
     user: process.env.DB_USER || 'root',
