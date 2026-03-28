@@ -5,7 +5,7 @@ function trimTrailingSlash(value: string) {
 }
 
 function resolveBackendOrigin() {
-  const configuredOrigin = trimTrailingSlash(import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || '');
+  const configuredOrigin = trimTrailingSlash(import.meta.env.VITE_API_URL || '');
 
   if (configuredOrigin) {
     return configuredOrigin;
