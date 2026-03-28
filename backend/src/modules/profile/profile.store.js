@@ -1,4 +1,6 @@
 import { fetchAll, fetchOne, query } from '../../db/mysql.js';
+import { isDatabaseUnavailableError } from '../../lib/errors.js';
+import { getProfileLocal, listProfilesLocal, updateProfileLocal } from '../../lib/local-store.js';
 
 const DEFAULT_NOTIFICATION_PREFS = {
   weather: true,
@@ -99,6 +101,17 @@ function mapRow(row) {
   };
 }
 
+async function withLocalFallback(action, fallback) {
+  try {
+    return await action();
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return fallback();
+    }
+    throw error;
+  }
+}
+
 async function ensureProfile(userId, identity = {}) {
   const defaults = defaultProfile(userId, identity);
   await query(
@@ -132,75 +145,89 @@ async function ensureProfile(userId, identity = {}) {
 }
 
 export async function getProfile(userId = 'anonymous', identity = {}) {
-  await ensureProfile(userId, identity);
-  const row = await fetchOne('SELECT * FROM farmer_profiles WHERE user_id = ?', [userId]);
-  const profile = mapRow(row);
-  return {
-    ...profile,
-    email: identity.email || profile.email,
-    phone: identity.phone || profile.phone,
-    role: identity.role || profile.role,
-    name: identity.name || profile.name,
-  };
+  return withLocalFallback(
+    async () => {
+      await ensureProfile(userId, identity);
+      const row = await fetchOne('SELECT * FROM farmer_profiles WHERE user_id = ?', [userId]);
+      const profile = mapRow(row);
+      return {
+        ...profile,
+        email: identity.email || profile.email,
+        phone: identity.phone || profile.phone,
+        role: identity.role || profile.role,
+        name: identity.name || profile.name,
+      };
+    },
+    () => getProfileLocal(userId, identity),
+  );
 }
 
 export async function updateProfile(userId = 'anonymous', patch = {}, identity = {}) {
-  const current = await getProfile(userId, identity);
-  const merged = normalizeProfile(userId, {
-    ...current,
-    ...patch,
-    notificationPreferences: {
-      ...current.notificationPreferences,
-      ...(patch.notificationPreferences || {}),
+  return withLocalFallback(
+    async () => {
+      const current = await getProfile(userId, identity);
+      const merged = normalizeProfile(userId, {
+        ...current,
+        ...patch,
+        notificationPreferences: {
+          ...current.notificationPreferences,
+          ...(patch.notificationPreferences || {}),
+        },
+      });
+
+      await query(
+        `
+          UPDATE farmer_profiles
+          SET
+            name = ?,
+            email = ?,
+            phone = ?,
+            role = ?,
+            location = ?,
+            latitude = ?,
+            longitude = ?,
+            land_size_acres = ?,
+            crops = ?,
+            crop_plans = ?,
+            notification_preferences = ?
+          WHERE user_id = ?
+        `,
+        [
+          merged.name,
+          merged.email || null,
+          merged.phone || null,
+          merged.role,
+          merged.location,
+          merged.latitude,
+          merged.longitude,
+          merged.landSizeAcres,
+          JSON.stringify(merged.crops),
+          JSON.stringify(merged.cropPlans),
+          JSON.stringify(merged.notificationPreferences),
+          userId,
+        ],
+      );
+
+      return getProfile(userId, identity);
     },
-  });
-
-  await query(
-    `
-      UPDATE farmer_profiles
-      SET
-        name = ?,
-        email = ?,
-        phone = ?,
-        role = ?,
-        location = ?,
-        latitude = ?,
-        longitude = ?,
-        land_size_acres = ?,
-        crops = ?,
-        crop_plans = ?,
-        notification_preferences = ?
-      WHERE user_id = ?
-    `,
-    [
-      merged.name,
-      merged.email || null,
-      merged.phone || null,
-      merged.role,
-      merged.location,
-      merged.latitude,
-      merged.longitude,
-      merged.landSizeAcres,
-      JSON.stringify(merged.crops),
-      JSON.stringify(merged.cropPlans),
-      JSON.stringify(merged.notificationPreferences),
-      userId,
-    ],
+    () => updateProfileLocal(userId, patch, identity),
   );
-
-  return getProfile(userId, identity);
 }
 
 export async function listProfiles(limit = 1000) {
-  const safeLimit = Math.min(Math.max(Number(limit) || 500, 1), 5000);
-  const rows = await fetchAll(
-    `
-      SELECT *
-      FROM farmer_profiles
-      ORDER BY updated_at DESC
-      LIMIT ${safeLimit}
-    `,
+  return withLocalFallback(
+    async () => {
+      const safeLimit = Math.min(Math.max(Number(limit) || 500, 1), 5000);
+      const rows = await fetchAll(
+        `
+          SELECT *
+          FROM farmer_profiles
+          ORDER BY updated_at DESC
+          LIMIT ${safeLimit}
+        `,
+      );
+      return rows.map(mapRow);
+    },
+    () => listProfilesLocal(limit),
   );
-  return rows.map(mapRow);
 }
-

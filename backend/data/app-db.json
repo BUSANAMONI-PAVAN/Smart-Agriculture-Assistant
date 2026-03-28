@@ -3,7 +3,64 @@
   "sessions": [],
   "profiles": {},
   "alerts": [],
+  "otpChallenges": [],
+  "chatHistory": [],
   "emailLog": [],
   "auditLog": [],
-  "featureFlags": {}
+  "featureFlags": {
+    "weather": {
+      "key": "weather",
+      "title": "Weather Intelligence",
+      "description": "Daily forecast analysis and irrigation guidance.",
+      "enabled": true
+    },
+    "cropRecommendation": {
+      "key": "cropRecommendation",
+      "title": "Crop Recommendation",
+      "description": "Soil and season based crop planning.",
+      "enabled": true
+    },
+    "diseaseDetection": {
+      "key": "diseaseDetection",
+      "title": "Disease Detection",
+      "description": "Plant disease scan and treatment support.",
+      "enabled": true
+    },
+    "marketPrices": {
+      "key": "marketPrices",
+      "title": "Market Prices",
+      "description": "Market intelligence and profitability guidance.",
+      "enabled": true
+    },
+    "fertilizerCalculator": {
+      "key": "fertilizerCalculator",
+      "title": "Fertilizer Calculator",
+      "description": "Nutrient requirement calculator.",
+      "enabled": true
+    },
+    "govtSchemes": {
+      "key": "govtSchemes",
+      "title": "Government Schemes",
+      "description": "Subsidy and scheme discovery.",
+      "enabled": true
+    },
+    "farmerProfile": {
+      "key": "farmerProfile",
+      "title": "Farmer Profile",
+      "description": "Farm profile and personalization settings.",
+      "enabled": true
+    },
+    "profitEstimator": {
+      "key": "profitEstimator",
+      "title": "Profit Estimator",
+      "description": "Cost versus revenue planning.",
+      "enabled": true
+    },
+    "notificationsDebug": {
+      "key": "notificationsDebug",
+      "title": "Notifications Debug",
+      "description": "Operations and notifications diagnostics.",
+      "enabled": true
+    }
+  }
 }

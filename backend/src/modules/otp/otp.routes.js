@@ -93,12 +93,12 @@ router.post('/admin/resend', validateRequest({ body: otpResendSchema }), async (
   }
 
   const otp = await createOtpChallenge(user.id, challenge.purpose);
-  await sendOTPEmail(user.email, otp);
+  const delivery = await sendOTPEmail(user.email, otp);
 
   res.json({
     message: 'OTP resent successfully.',
     otpSessionToken: issueOtpChallengeToken(user.id, challenge.purpose),
-    ...(isEmailTransportConfigured() ? {} : { debugOtp: otp }),
+    ...(!isEmailTransportConfigured() || !delivery.delivered ? { debugOtp: otp } : {}),
   });
 });
 
@@ -110,12 +110,12 @@ router.post('/admin/request', requireAuth, requireAdmin, validateRequest({ body:
   }
 
   const otp = await createOtpChallenge(user.id, purpose);
-  await sendOTPEmail(user.email, otp);
+  const delivery = await sendOTPEmail(user.email, otp);
 
   res.json({
     message: 'OTP sent for sensitive action verification.',
     otpSessionToken: issueOtpChallengeToken(user.id, purpose),
-    ...(isEmailTransportConfigured() ? {} : { debugOtp: otp }),
+    ...(!isEmailTransportConfigured() || !delivery.delivered ? { debugOtp: otp } : {}),
   });
 });
 

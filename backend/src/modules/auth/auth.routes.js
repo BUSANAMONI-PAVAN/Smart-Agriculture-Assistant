@@ -107,24 +107,24 @@ router.post('/farmer/login', validateRequest({ body: farmerLoginSchema }), async
 router.post('/admin/register', validateRequest({ body: adminRegisterSchema }), async (req, res) => {
   const user = await createAdmin(req.body || {});
   const otp = await createOtpChallenge(user.id, 'admin_register');
-  await sendOTPEmail(user.email, otp);
+  const delivery = await sendOTPEmail(user.email, otp);
 
   res.status(202).json({
     message: 'OTP sent to admin email for signup verification.',
     otpSessionToken: issueOtpChallengeToken(user.id, 'admin_register'),
-    ...(isEmailTransportConfigured() ? {} : { debugOtp: otp }),
+    ...(!isEmailTransportConfigured() || !delivery.delivered ? { debugOtp: otp } : {}),
   });
 });
 
 router.post('/admin/login', validateRequest({ body: adminLoginSchema }), async (req, res) => {
   const user = await verifyAdminCredentials(req.body?.email, req.body?.password);
   const otp = await createOtpChallenge(user.id, 'admin_login');
-  await sendOTPEmail(user.email, otp);
+  const delivery = await sendOTPEmail(user.email, otp);
 
   res.status(202).json({
     message: 'OTP sent to admin email for login verification.',
     otpSessionToken: issueOtpChallengeToken(user.id, 'admin_login'),
-    ...(isEmailTransportConfigured() ? {} : { debugOtp: otp }),
+    ...(!isEmailTransportConfigured() || !delivery.delivered ? { debugOtp: otp } : {}),
   });
 });
 

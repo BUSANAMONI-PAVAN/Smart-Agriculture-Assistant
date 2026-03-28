@@ -1,4 +1,6 @@
 import { fetchAll, fetchOne, query } from '../../db/mysql.js';
+import { isDatabaseUnavailableError } from '../../lib/errors.js';
+import { getChatHistoryLocal, saveChatTurnLocal } from '../../lib/local-store.js';
 
 function parseJson(input, fallback = null) {
   if (!input) return fallback;
@@ -23,38 +25,59 @@ function mapRow(row) {
   };
 }
 
-export async function saveChatTurn(payload) {
-  const [result] = await query(
-    `
-      INSERT INTO chat_history (user_id, question, answer, model, weather_summary, metadata)
-      VALUES (?, ?, ?, ?, ?, ?)
-    `,
-    [
-      payload.userId,
-      payload.question,
-      payload.answer,
-      payload.model || 'rule-engine',
-      payload.weatherSummary ? JSON.stringify(payload.weatherSummary) : null,
-      payload.metadata ? JSON.stringify(payload.metadata) : null,
-    ],
-  );
+async function withLocalFallback(action, fallback) {
+  try {
+    return await action();
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return fallback();
+    }
+    throw error;
+  }
+}
 
-  const row = await fetchOne('SELECT * FROM chat_history WHERE id = ?', [result.insertId]);
-  return row ? mapRow(row) : null;
+export async function saveChatTurn(payload) {
+  return withLocalFallback(
+    async () => {
+      const [result] = await query(
+        `
+          INSERT INTO chat_history (user_id, question, answer, model, weather_summary, metadata)
+          VALUES (?, ?, ?, ?, ?, ?)
+        `,
+        [
+          payload.userId,
+          payload.question,
+          payload.answer,
+          payload.model || 'rule-engine',
+          payload.weatherSummary ? JSON.stringify(payload.weatherSummary) : null,
+          payload.metadata ? JSON.stringify(payload.metadata) : null,
+        ],
+      );
+
+      const row = await fetchOne('SELECT * FROM chat_history WHERE id = ?', [result.insertId]);
+      return row ? mapRow(row) : null;
+    },
+    () => saveChatTurnLocal(payload),
+  );
 }
 
 export async function getChatHistory(userId, limit = 40) {
-  const safeLimit = Math.min(Math.max(Number(limit) || 20, 1), 200);
-  const rows = await fetchAll(
-    `
-      SELECT *
-      FROM chat_history
-      WHERE user_id = ?
-      ORDER BY created_at DESC
-      LIMIT ${safeLimit}
-    `,
-    [userId],
-  );
+  return withLocalFallback(
+    async () => {
+      const safeLimit = Math.min(Math.max(Number(limit) || 20, 1), 200);
+      const rows = await fetchAll(
+        `
+          SELECT *
+          FROM chat_history
+          WHERE user_id = ?
+          ORDER BY created_at DESC
+          LIMIT ${safeLimit}
+        `,
+        [userId],
+      );
 
-  return rows.map(mapRow);
+      return rows.map(mapRow);
+    },
+    () => getChatHistoryLocal(userId, limit),
+  );
 }

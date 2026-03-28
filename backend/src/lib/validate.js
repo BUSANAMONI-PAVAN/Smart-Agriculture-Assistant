@@ -13,13 +13,28 @@ export function validateRequest({ body, query, params } = {}) {
   return (req, _res, next) => {
     try {
       if (body) {
-        req.body = body.parse(req.body || {});
+        Object.defineProperty(req, 'body', {
+          value: body.parse(req.body || {}),
+          configurable: true,
+          enumerable: true,
+          writable: true,
+        });
       }
       if (query) {
-        req.query = query.parse(req.query || {});
+        Object.defineProperty(req, 'query', {
+          value: query.parse(req.query || {}),
+          configurable: true,
+          enumerable: true,
+          writable: true,
+        });
       }
       if (params) {
-        req.params = params.parse(req.params || {});
+        Object.defineProperty(req, 'params', {
+          value: params.parse(req.params || {}),
+          configurable: true,
+          enumerable: true,
+          writable: true,
+        });
       }
       return next();
     } catch (error) {
@@ -30,4 +45,3 @@ export function validateRequest({ body, query, params } = {}) {
     }
   };
 }
-

@@ -33,13 +33,38 @@ function getTransporter() {
 }
 
 async function sendMail({ to, subject, html, text }) {
-  return getTransporter().sendMail({
-    from: process.env.EMAIL_FROM || 'Smart Agriculture <no-reply@smartagri.local>',
-    to,
-    subject,
-    html,
-    text,
-  });
+  const transport = isEmailTransportConfigured() ? 'smtp' : 'jsonTransport';
+
+  try {
+    const response = await getTransporter().sendMail({
+      from: process.env.EMAIL_FROM || 'Smart Agriculture <no-reply@smartagri.local>',
+      to,
+      subject,
+      html,
+      text,
+    });
+
+    return {
+      delivered: true,
+      transport,
+      messageId: response?.messageId || null,
+      errorMessage: null,
+    };
+  } catch (error) {
+    console.error('Email delivery failed', {
+      to,
+      subject,
+      transport,
+      error: error?.message || String(error),
+    });
+
+    return {
+      delivered: false,
+      transport,
+      messageId: null,
+      errorMessage: error?.message || 'Unknown email delivery error.',
+    };
+  }
 }
 
 export async function sendEmail({ to, subject, text, html, category = 'system' }) {
@@ -48,8 +73,10 @@ export async function sendEmail({ to, subject, text, html, category = 'system' }
     to,
     subject,
     category,
-    transport: isEmailTransportConfigured() ? 'smtp' : 'jsonTransport',
-    messageId: response?.messageId || null,
+    transport: response.transport,
+    messageId: response.messageId,
+    delivered: response.delivered,
+    errorMessage: response.errorMessage,
   };
 }
 

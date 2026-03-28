@@ -1,5 +1,13 @@
 import { EventEmitter } from 'node:events';
 import { fetchAll, fetchOne, query } from '../../db/mysql.js';
+import { isDatabaseUnavailableError } from '../../lib/errors.js';
+import {
+  addAlertLocal,
+  deleteAlertLocal,
+  getAlertsDebugStateLocal,
+  getAlertsLocal,
+  markAlertReadLocal,
+} from '../../lib/local-store.js';
 import { emitUserNotification } from '../../realtime/socket.js';
 
 const alertEvents = new EventEmitter();
@@ -37,6 +45,17 @@ function mapNotificationRow(row) {
   };
 }
 
+async function withLocalFallback(action, fallback) {
+  try {
+    return await action();
+  } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return fallback();
+    }
+    throw error;
+  }
+}
+
 export function shouldStoreAlert(alert) {
   const key = fingerprintFor(alert);
   const last = dedupeMap.get(key);
@@ -49,85 +68,111 @@ export function shouldStoreAlert(alert) {
 }
 
 export async function addAlert(payload) {
-  const user = await fetchOne('SELECT id FROM users WHERE id = ?', [payload.userId]);
-  if (!user) {
-    return null;
-  }
+  const notify = (alert) => {
+    if (!alert) {
+      return null;
+    }
+    alertEvents.emit('alert', alert);
+    emitUserNotification(alert.userId, alert);
+    return alert;
+  };
 
-  const metadata = payload.metadata ? JSON.stringify(payload.metadata) : null;
-  const [result] = await query(
-    `
-      INSERT INTO notifications (user_id, title, message, type, level, source, metadata)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
-    `,
-    [
-      payload.userId,
-      payload.title || 'Notification',
-      payload.message || 'New notification available.',
-      payload.type || 'system',
-      payload.level || 'medium',
-      payload.source || 'system',
-      metadata,
-    ],
+  return withLocalFallback(
+    async () => {
+      const user = await fetchOne('SELECT id FROM users WHERE id = ?', [payload.userId]);
+      if (!user) {
+        return null;
+      }
+
+      const metadata = payload.metadata ? JSON.stringify(payload.metadata) : null;
+      const [result] = await query(
+        `
+          INSERT INTO notifications (user_id, title, message, type, level, source, metadata)
+          VALUES (?, ?, ?, ?, ?, ?, ?)
+        `,
+        [
+          payload.userId,
+          payload.title || 'Notification',
+          payload.message || 'New notification available.',
+          payload.type || 'system',
+          payload.level || 'medium',
+          payload.source || 'system',
+          metadata,
+        ],
+      );
+
+      const row = await fetchOne('SELECT * FROM notifications WHERE id = ?', [result.insertId]);
+      return notify(mapNotificationRow(row));
+    },
+    () => notify(addAlertLocal(payload)),
   );
-
-  const row = await fetchOne('SELECT * FROM notifications WHERE id = ?', [result.insertId]);
-  const alert = mapNotificationRow(row);
-  alertEvents.emit('alert', alert);
-  emitUserNotification(alert.userId, alert);
-  return alert;
 }
 
 export async function getAlerts({ source = null, userId = null } = {}) {
-  const clauses = [];
-  const params = [];
+  return withLocalFallback(
+    async () => {
+      const clauses = [];
+      const params = [];
 
-  if (userId) {
-    clauses.push('user_id = ?');
-    params.push(userId);
-  }
-  if (source) {
-    clauses.push('source = ?');
-    params.push(source);
-  }
+      if (userId) {
+        clauses.push('user_id = ?');
+        params.push(userId);
+      }
+      if (source) {
+        clauses.push('source = ?');
+        params.push(source);
+      }
 
-  const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
-  const rows = await fetchAll(
-    `
-      SELECT *
-      FROM notifications
-      ${where}
-      ORDER BY created_at DESC
-      LIMIT 250
-    `,
-    params,
+      const where = clauses.length ? `WHERE ${clauses.join(' AND ')}` : '';
+      const rows = await fetchAll(
+        `
+          SELECT *
+          FROM notifications
+          ${where}
+          ORDER BY created_at DESC
+          LIMIT 250
+        `,
+        params,
+      );
+
+      return rows.map(mapNotificationRow);
+    },
+    () => getAlertsLocal({ source, userId }),
   );
-
-  return rows.map(mapNotificationRow);
 }
 
 export async function markAlertRead(id, userId = null) {
-  if (userId) {
-    await query('UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?', [id, userId]);
-  } else {
-    await query('UPDATE notifications SET is_read = 1 WHERE id = ?', [id]);
-  }
-  const row = await fetchOne('SELECT * FROM notifications WHERE id = ?', [id]);
-  return row ? mapNotificationRow(row) : null;
+  return withLocalFallback(
+    async () => {
+      if (userId) {
+        await query('UPDATE notifications SET is_read = 1 WHERE id = ? AND user_id = ?', [id, userId]);
+      } else {
+        await query('UPDATE notifications SET is_read = 1 WHERE id = ?', [id]);
+      }
+      const row = await fetchOne('SELECT * FROM notifications WHERE id = ?', [id]);
+      return row ? mapNotificationRow(row) : null;
+    },
+    () => markAlertReadLocal(id, userId),
+  );
 }
 
 export async function deleteAlert(id, userId = null) {
-  const row = await fetchOne('SELECT * FROM notifications WHERE id = ?', [id]);
-  if (!row) {
-    return null;
-  }
+  return withLocalFallback(
+    async () => {
+      const row = await fetchOne('SELECT * FROM notifications WHERE id = ?', [id]);
+      if (!row) {
+        return null;
+      }
 
-  if (userId && row.user_id !== userId) {
-    return null;
-  }
+      if (userId && row.user_id !== userId) {
+        return null;
+      }
 
-  await query('DELETE FROM notifications WHERE id = ?', [id]);
-  return mapNotificationRow(row);
+      await query('DELETE FROM notifications WHERE id = ?', [id]);
+      return mapNotificationRow(row);
+    },
+    () => deleteAlertLocal(id, userId),
+  );
 }
 
 export function subscribeToAlerts(listener) {
@@ -136,15 +181,6 @@ export function subscribeToAlerts(listener) {
 }
 
 export async function getAlertsDebugState() {
-  const rows = await fetchAll(
-    `
-      SELECT *
-      FROM notifications
-      ORDER BY created_at DESC
-      LIMIT 20
-    `,
-  );
-
   const now = Date.now();
   const dedupeEntries = Array.from(dedupeMap.entries()).slice(0, 120).map(([fingerprint, lastAt]) => {
     const parts = fingerprint.split('|');
@@ -165,10 +201,24 @@ export async function getAlertsDebugState() {
     };
   });
 
-  return {
-    alertCount: rows.length,
-    dedupeCount: dedupeMap.size,
-    latestAlerts: rows.map(mapNotificationRow),
-    dedupeEntries,
-  };
+  return withLocalFallback(
+    async () => {
+      const rows = await fetchAll(
+        `
+          SELECT *
+          FROM notifications
+          ORDER BY created_at DESC
+          LIMIT 20
+        `,
+      );
+
+      return {
+        alertCount: rows.length,
+        dedupeCount: dedupeMap.size,
+        latestAlerts: rows.map(mapNotificationRow),
+        dedupeEntries,
+      };
+    },
+    () => getAlertsDebugStateLocal(dedupeEntries),
+  );
 }

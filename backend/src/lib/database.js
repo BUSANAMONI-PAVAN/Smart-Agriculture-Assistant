@@ -70,6 +70,8 @@ function baseState() {
     sessions: [],
     profiles: {},
     alerts: [],
+    otpChallenges: [],
+    chatHistory: [],
     emailLog: [],
     auditLog: [],
     featureFlags: structuredClone(FEATURE_DEFAULTS),
@@ -94,6 +96,8 @@ function normalizeState(raw) {
   next.sessions = Array.isArray(input.sessions) ? input.sessions : [];
   next.profiles = input.profiles && typeof input.profiles === 'object' ? input.profiles : {};
   next.alerts = Array.isArray(input.alerts) ? input.alerts : [];
+  next.otpChallenges = Array.isArray(input.otpChallenges) ? input.otpChallenges : [];
+  next.chatHistory = Array.isArray(input.chatHistory) ? input.chatHistory : [];
   next.emailLog = Array.isArray(input.emailLog) ? input.emailLog : [];
   next.auditLog = Array.isArray(input.auditLog) ? input.auditLog : [];
   next.featureFlags = {

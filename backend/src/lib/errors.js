@@ -10,3 +10,7 @@ export class AppError extends Error {
 export function isAppError(error) {
   return error instanceof AppError;
 }
+
+export function isDatabaseUnavailableError(error) {
+  return isAppError(error) && error.status === 503;
+}
