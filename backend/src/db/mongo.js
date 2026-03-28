@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { setDatabaseConnecting, setDatabaseReady, setDatabaseUnavailable } from './state.js';
 
 let initPromise = null;
 let warnedAboutMysqlFallback = false;
@@ -81,6 +82,7 @@ export async function initDatabase() {
   }
 
   const serverSelectionTimeoutMS = Number(process.env.MONGO_SERVER_SELECTION_TIMEOUT_MS || 10000);
+  setDatabaseConnecting('mongo');
 
   initPromise = mongoose
     .connect(mongoUri, {
@@ -88,10 +90,12 @@ export async function initDatabase() {
     })
     .then((instance) => {
       const { host, name } = instance.connection;
+      setDatabaseReady('mongo', `${host}/${name}`);
       console.log(`MongoDB connected (${host}/${name})`);
       return instance.connection;
     })
     .catch((error) => {
+      setDatabaseUnavailable('mongo', error);
       initPromise = null;
       throw error;
     });

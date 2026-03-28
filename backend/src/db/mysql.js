@@ -1,5 +1,7 @@
 import mysql from 'mysql2/promise';
+import { AppError } from '../lib/errors.js';
 import { observeDbQuery } from '../lib/metrics.js';
+import { setDatabaseConnecting, setDatabaseReady, setDatabaseUnavailable } from './state.js';
 
 const DEFAULT_FEATURE_FLAGS = [
   ['weather', 'Weather Intelligence', 'Weather monitoring and irrigation advice'],
@@ -15,6 +17,18 @@ const DEFAULT_FEATURE_FLAGS = [
 
 let pool = null;
 let initPromise = null;
+const CONNECTION_ERROR_CODES = new Set([
+  'ECONNREFUSED',
+  'ECONNRESET',
+  'ENOTFOUND',
+  'EHOSTUNREACH',
+  'ETIMEDOUT',
+  'ER_ACCESS_DENIED_ERROR',
+  'ER_BAD_DB_ERROR',
+  'PROTOCOL_CONNECTION_LOST',
+  'PROTOCOL_ENQUEUE_AFTER_FATAL_ERROR',
+  'PROTOCOL_ENQUEUE_AFTER_QUIT',
+]);
 
 function normalizeConnectionString(value) {
   if (!value) {
@@ -85,6 +99,35 @@ function getRootConfig(includeDatabase = false) {
     namedPlaceholders: true,
     decimalNumbers: true,
   };
+}
+
+function getDatabaseName() {
+  return getConnectionStringConfig(true)?.database || process.env.DB_NAME || 'smart_agriculture';
+}
+
+function isDatabaseConnectionError(error) {
+  return CONNECTION_ERROR_CODES.has(error?.code);
+}
+
+function createDatabaseUnavailableError(error) {
+  return new AppError(503, 'Database is unavailable.', error?.message || 'Database connection failed.');
+}
+
+async function resetPool() {
+  initPromise = null;
+
+  if (!pool) {
+    return;
+  }
+
+  const currentPool = pool;
+  pool = null;
+
+  try {
+    await currentPool.end();
+  } catch {
+    // Ignore cleanup failures while resetting the connection pool.
+  }
 }
 
 async function seedFeatureFlags() {
@@ -219,7 +262,7 @@ async function ensureUsersSchema() {
         AND TABLE_NAME = 'users'
         AND COLUMN_NAME = 'last_login_at'
     `,
-    [process.env.DB_NAME || 'smart_agriculture'],
+    [getDatabaseName()],
   );
 
   if (!Array.isArray(rows) || rows.length === 0) {
@@ -232,24 +275,42 @@ export async function initDatabase() {
     return initPromise;
   }
 
+  setDatabaseConnecting('mysql');
   initPromise = (async () => {
+    const databaseName = getDatabaseName();
     const rootConnection = await mysql.createConnection(getRootConfig(false));
-    const databaseName = process.env.DB_NAME || 'smart_agriculture';
-    await rootConnection.query(`CREATE DATABASE IF NOT EXISTS \`${databaseName}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`);
-    await rootConnection.end();
+
+    try {
+      await rootConnection.query(`CREATE DATABASE IF NOT EXISTS \`${databaseName}\` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci`);
+    } finally {
+      await rootConnection.end().catch(() => {});
+    }
 
     pool = mysql.createPool(getRootConfig(true));
     await createTables();
     await ensureUsersSchema();
     await seedFeatureFlags();
-  })();
+    setDatabaseReady('mysql', databaseName);
+    return pool;
+  })().catch(async (error) => {
+    setDatabaseUnavailable('mysql', error);
+    await resetPool();
+    throw error;
+  });
 
   return initPromise;
 }
 
 export async function query(sql, params = []) {
-  await initDatabase();
   const startedAt = process.hrtime.bigint();
+
+  try {
+    await initDatabase();
+  } catch (error) {
+    observeDbQuery(0, false);
+    throw createDatabaseUnavailableError(error);
+  }
+
   try {
     const result = await pool.execute(sql, params);
     const durationMs = Number(process.hrtime.bigint() - startedAt) / 1_000_000;
@@ -258,6 +319,13 @@ export async function query(sql, params = []) {
   } catch (error) {
     const durationMs = Number(process.hrtime.bigint() - startedAt) / 1_000_000;
     observeDbQuery(durationMs, false);
+
+    if (isDatabaseConnectionError(error)) {
+      setDatabaseUnavailable('mysql', error);
+      await resetPool();
+      throw createDatabaseUnavailableError(error);
+    }
+
     throw error;
   }
 }
