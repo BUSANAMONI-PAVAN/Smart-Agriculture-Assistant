@@ -56,18 +56,9 @@ function hasExplicitMysqlConnectionString() {
   return Boolean(normalizeConnectionString(process.env.MYSQL_URL || process.env.DATABASE_URL));
 }
 
-function hasExplicitMysqlConfig() {
-  if (hasExplicitMysqlConnectionString()) {
-    return true;
-  }
-
-  return Boolean(
-    normalizeConnectionString(process.env.DB_HOST) ||
-      normalizeConnectionString(process.env.DB_PORT) ||
-      normalizeConnectionString(process.env.DB_USER) ||
-      normalizeConnectionString(process.env.DB_PASSWORD) ||
-      normalizeConnectionString(process.env.DB_NAME),
-  );
+function isLoopbackHost(host) {
+  const normalizedHost = String(host || '').trim().toLowerCase();
+  return ['127.0.0.1', 'localhost', '0.0.0.0', '::1'].includes(normalizedHost);
 }
 
 export function shouldUseLocalStore() {
@@ -77,7 +68,16 @@ export function shouldUseLocalStore() {
     return true;
   }
 
-  return process.env.NODE_ENV === 'production' && !hasExplicitMysqlConfig();
+  if (process.env.NODE_ENV !== 'production') {
+    return false;
+  }
+
+  if (hasExplicitMysqlConnectionString()) {
+    return false;
+  }
+
+  const configuredHost = normalizeConnectionString(process.env.DB_HOST);
+  return !configuredHost || isLoopbackHost(configuredHost);
 }
 
 function getConnectionStringConfig(includeDatabase = false) {

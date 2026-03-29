@@ -38,7 +38,7 @@ function getMongoUri() {
   }
 
   if (!warnedAboutInvalidMongoUri) {
-    console.warn('MONGO_URI is set but is not a valid MongoDB connection string. Falling back to the existing MySQL bootstrap.');
+    console.warn('MONGO_URI is set but is not a valid MongoDB connection string.');
     warnedAboutInvalidMongoUri = true;
   }
 
@@ -48,9 +48,13 @@ function getMongoUri() {
 async function initMysqlFallback(reason = 'missing') {
   const { initDatabase: initMysqlDatabase, shouldUseLocalStore } = await import('./mysql.js');
 
-  if (!warnedAboutMysqlFallback && reason === 'missing') {
+  if (!warnedAboutMysqlFallback) {
     const target = shouldUseLocalStore() ? 'the local data store' : 'the existing MySQL database bootstrap';
-    console.warn(`MONGO_URI is not set. Falling back to ${target}.`);
+    const preface =
+      reason === 'invalid'
+        ? 'MONGO_URI is invalid.'
+        : 'MONGO_URI is not set.';
+    console.warn(`${preface} Falling back to ${target}.`);
     warnedAboutMysqlFallback = true;
   }
 
