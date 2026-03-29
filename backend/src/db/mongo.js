@@ -46,10 +46,11 @@ function getMongoUri() {
 }
 
 async function initMysqlFallback(reason = 'missing') {
-  const { initDatabase: initMysqlDatabase } = await import('./mysql.js');
+  const { initDatabase: initMysqlDatabase, shouldUseLocalStore } = await import('./mysql.js');
 
   if (!warnedAboutMysqlFallback && reason === 'missing') {
-    console.warn('MONGO_URI is not set. Falling back to the existing MySQL database bootstrap.');
+    const target = shouldUseLocalStore() ? 'the local data store' : 'the existing MySQL database bootstrap';
+    console.warn(`MONGO_URI is not set. Falling back to ${target}.`);
     warnedAboutMysqlFallback = true;
   }
 

@@ -17,6 +17,7 @@ const DEFAULT_FEATURE_FLAGS = [
 
 let pool = null;
 let initPromise = null;
+const LOCAL_STORE_DETAIL = 'data/app-db.json';
 const CONNECTION_ERROR_CODES = new Set([
   'ECONNREFUSED',
   'ECONNRESET',
@@ -49,6 +50,34 @@ function normalizeConnectionString(value) {
   }
 
   return trimmed;
+}
+
+function hasExplicitMysqlConnectionString() {
+  return Boolean(normalizeConnectionString(process.env.MYSQL_URL || process.env.DATABASE_URL));
+}
+
+function hasExplicitMysqlConfig() {
+  if (hasExplicitMysqlConnectionString()) {
+    return true;
+  }
+
+  return Boolean(
+    normalizeConnectionString(process.env.DB_HOST) ||
+      normalizeConnectionString(process.env.DB_PORT) ||
+      normalizeConnectionString(process.env.DB_USER) ||
+      normalizeConnectionString(process.env.DB_PASSWORD) ||
+      normalizeConnectionString(process.env.DB_NAME),
+  );
+}
+
+export function shouldUseLocalStore() {
+  const forceLocalStore = String(process.env.FORCE_LOCAL_STORE || '').trim().toLowerCase();
+
+  if (forceLocalStore === 'true' || forceLocalStore === '1') {
+    return true;
+  }
+
+  return process.env.NODE_ENV === 'production' && !hasExplicitMysqlConfig();
 }
 
 function getConnectionStringConfig(includeDatabase = false) {
@@ -111,6 +140,10 @@ function isDatabaseConnectionError(error) {
 
 function createDatabaseUnavailableError(error) {
   return new AppError(503, 'Database is unavailable.', error?.message || 'Database connection failed.');
+}
+
+function createLocalStoreFallbackError() {
+  return new AppError(503, 'Database is unavailable.', 'Local data store mode is active.');
 }
 
 async function resetPool() {
@@ -275,6 +308,12 @@ export async function initDatabase() {
     return initPromise;
   }
 
+  if (shouldUseLocalStore()) {
+    setDatabaseReady('local', LOCAL_STORE_DETAIL);
+    initPromise = Promise.resolve(null);
+    return initPromise;
+  }
+
   setDatabaseConnecting('mysql');
   initPromise = (async () => {
     const databaseName = getDatabaseName();
@@ -303,6 +342,11 @@ export async function initDatabase() {
 
 export async function query(sql, params = []) {
   const startedAt = process.hrtime.bigint();
+
+  if (shouldUseLocalStore()) {
+    observeDbQuery(0, true);
+    throw createLocalStoreFallbackError();
+  }
 
   try {
     await initDatabase();
