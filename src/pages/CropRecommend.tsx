@@ -4,6 +4,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useAppSettings } from '../contexts/AppSettingsContext';
 import { api, type CropRecommendationResult } from '../services/api';
 import { createAlert, shouldTriggerAlert } from '../utils/alertEngine';
+import { pushBrowserNotification } from '../utils/browserNotifications';
 
 type SoilType = 'black' | 'red' | 'loamy' | 'sandy' | 'clay' | 'silt';
 type SeasonType = 'kharif' | 'rabi' | 'zaid';
@@ -96,18 +97,13 @@ export function CropRecommend() {
   const topRecommendation = useMemo(() => result?.recommendations?.[0], [result]);
 
   const notify = (title: string, body: string) => {
-    if (!('Notification' in window)) return;
-    if (Notification.permission === 'granted') {
-      new Notification(title, { body });
-      return;
-    }
-    if (Notification.permission !== 'denied') {
-      Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-          new Notification(title, { body });
-        }
-      });
-    }
+    void pushBrowserNotification({
+      type: 'crop',
+      level: 'medium',
+      title,
+      message: body,
+      path: '/crop-recommend',
+    });
   };
 
   const handleAutofillWeather = async () => {
@@ -138,7 +134,10 @@ export function CropRecommend() {
         const signature = `crop-${form.soilType}-${form.season}-${best.cropKey}-${best.riskLevel}`;
         if (level !== 'low' || best.suitabilityScore >= 88) {
           if (shouldTriggerAlert(signature, level)) {
-            notify(t('crop_recommendation'), alertMessage);
+            notify(
+              `${best.cropLabel} planning signal`,
+              `Suitability ${best.suitabilityScore}%. ${best.riskLevel} risk. ${best.whyRecommended}`,
+            );
             createAlert({ type: 'crop', level, message: alertMessage });
             void api.ingestAlert({
               type: 'crop',

@@ -1,7 +1,7 @@
-const STATIC_CACHE = 'smart-agri-static-v1';
-const DATA_CACHE = 'smart-agri-data-v1';
+const STATIC_CACHE = 'agri-field-static-v2';
+const DATA_CACHE = 'agri-field-data-v2';
 
-const STATIC_ASSETS = ['/', '/index.html', '/manifest.webmanifest'];
+const STATIC_ASSETS = ['/', '/index.html', '/manifest.webmanifest', '/images/agri-tools-mark.svg'];
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(STATIC_CACHE).then((cache) => cache.addAll(STATIC_ASSETS)));
@@ -36,4 +36,26 @@ self.addEventListener('fetch', (event) => {
   }
 
   event.respondWith(caches.match(request).then((cached) => cached || fetch(request)));
+});
+
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+
+  const targetPath = event.notification?.data?.path || '/dashboard';
+  event.waitUntil(
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clients) => {
+      for (const client of clients) {
+        if ('focus' in client) {
+          client.navigate(targetPath);
+          return client.focus();
+        }
+      }
+
+      if (self.clients.openWindow) {
+        return self.clients.openWindow(targetPath);
+      }
+
+      return undefined;
+    }),
+  );
 });

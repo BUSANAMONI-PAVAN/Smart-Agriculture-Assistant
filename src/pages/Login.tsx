@@ -325,7 +325,7 @@ export function Login() {
                 disabled={submitting}
                 className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-white text-[0.97rem] font-bold text-[#473f83] shadow-[0_18px_34px_rgba(255,255,255,0.16)] transition hover:bg-[#f6f2ff] disabled:cursor-not-allowed disabled:opacity-70"
               >
-                {submitting ? 'Working...' : primaryButtonLabel}
+                {submitting ? 'verifying...' : primaryButtonLabel}
                 <ArrowRight size={18} />
               </button>
             </form>

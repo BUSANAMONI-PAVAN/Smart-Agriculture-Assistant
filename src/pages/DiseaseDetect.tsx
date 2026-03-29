@@ -3,6 +3,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { Bug, Upload, RefreshCw, History } from 'lucide-react';
 import { api } from '../services/api';
 import { createAlert, shouldTriggerAlert } from '../utils/alertEngine';
+import { pushBrowserNotification } from '../utils/browserNotifications';
 
 type DetectionResult = {
   nameKey: string;
@@ -55,18 +56,13 @@ export function DiseaseDetect() {
   };
 
   const notify = (title: string, message: string) => {
-    if (!('Notification' in window)) return;
-    if (Notification.permission === 'granted') {
-      new Notification(title, { body: message });
-      return;
-    }
-    if (Notification.permission !== 'denied') {
-      Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-          new Notification(title, { body: message });
-        }
-      });
-    }
+    void pushBrowserNotification({
+      type: 'disease',
+      level: 'high',
+      title,
+      message,
+      path: '/disease-detect',
+    });
   };
 
   const sendManagerAlert = async (message: string) => {
@@ -235,7 +231,10 @@ export function DiseaseDetect() {
       const signature = `disease-${backendResult.prediction.diseaseKey}-${Math.round(detection.confidence / 5)}`;
 
       if (shouldTriggerAlert(signature, level)) {
-        notify(t('disease_detection'), `${diseaseText} (${detection.confidence}%)`);
+        notify(
+          detection.nameKey === 'healthy' ? 'Plant health looks stable' : `${diseaseText} review needed`,
+          `Confidence ${detection.confidence}%. ${backendResult.prediction.cause || 'Inspect leaves and begin the suggested treatment plan.'}`,
+        );
         void sendManagerAlert(`Detected: ${diseaseText} | Confidence: ${detection.confidence}%`);
         createAlert({
           type: 'disease',

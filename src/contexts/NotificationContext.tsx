@@ -3,6 +3,7 @@ import { io, type Socket } from 'socket.io-client';
 import { ALERTS_STREAM_URL, BACKEND_ORIGIN } from '../config/backend';
 import { api } from '../services/api';
 import { createAlert, readAlerts } from '../utils/alertEngine';
+import { getNotificationToolLabel, pushBrowserNotification, resolveNotificationTool } from '../utils/browserNotifications';
 import { useAuth } from './AuthContext';
 
 export type NotificationItem = {
@@ -41,19 +42,14 @@ function saveNotifiedIds(ids: string[]) {
 }
 
 function browserNotify(alert: NotificationItem) {
-  if (!('Notification' in window)) return;
-  if (Notification.permission === 'granted') {
-    new Notification(alert.title, { body: alert.message });
-    return;
-  }
-
-  if (Notification.permission !== 'denied') {
-    Notification.requestPermission().then((permission) => {
-      if (permission === 'granted') {
-        new Notification(alert.title, { body: alert.message });
-      }
-    });
-  }
+  void pushBrowserNotification({
+    type: alert.type,
+    level: alert.level,
+    title: alert.title,
+    message: alert.message,
+    createdAt: alert.createdAt,
+    path: '/dashboard',
+  });
 }
 
 export function NotificationProvider({ children }: { children: ReactNode }) {
@@ -67,7 +63,11 @@ export function NotificationProvider({ children }: { children: ReactNode }) {
       id: item.id,
       type: item.type,
       level: item.level,
-      title: `${item.type.toUpperCase()} Alert`,
+      title: `${getNotificationToolLabel(resolveNotificationTool({
+        type: item.type,
+        title: '',
+        message: item.message,
+      }))} Update`,
       message: item.message,
       read: false,
       createdAt: item.createdAt,

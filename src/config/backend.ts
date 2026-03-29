@@ -6,6 +6,11 @@ function trimTrailingSlash(value: string) {
 
 function resolveBackendOrigin() {
   const configuredOrigin = trimTrailingSlash(import.meta.env.VITE_API_URL || '');
+  const devOverrideOrigin = trimTrailingSlash(import.meta.env.VITE_DEV_API_URL || '');
+
+  if (!import.meta.env.PROD) {
+    return devOverrideOrigin;
+  }
 
   if (configuredOrigin) {
     return configuredOrigin;

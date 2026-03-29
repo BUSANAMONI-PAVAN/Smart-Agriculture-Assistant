@@ -3,10 +3,20 @@ import { AlertTriangle, CloudRain, Droplets, LocateFixed, Thermometer, Wind } fr
 import { api, WeatherDecisionResponse } from '../services/api';
 import { useLanguage } from '../contexts/LanguageContext';
 import { createAlert, shouldTriggerAlert } from '../utils/alertEngine';
+import { pushBrowserNotification } from '../utils/browserNotifications';
 
 type CachedWeather = WeatherDecisionResponse;
+type WeatherCoordinates = {
+  latitude: number;
+  longitude: number;
+};
 
 const CACHE_KEY = 'weatherDecisionCacheV2';
+const WEATHER_COORDS_CACHE_KEY = 'weatherCoordsCacheV1';
+const DEFAULT_WEATHER_COORDS: WeatherCoordinates = {
+  latitude: 17.385,
+  longitude: 78.4867,
+};
 
 const WEATHER_CODE_MAP: Record<number, string> = {
   0: 'Clear',
@@ -38,6 +48,79 @@ function getProfileCrop(): string {
     return profile.crops.split(',')[0]?.trim() || '';
   } catch {
     return '';
+  }
+}
+
+function readCachedCoordinates(): WeatherCoordinates | null {
+  try {
+    const raw = localStorage.getItem(WEATHER_COORDS_CACHE_KEY);
+    if (!raw) return null;
+
+    const parsed = JSON.parse(raw) as Partial<WeatherCoordinates>;
+    if (typeof parsed.latitude !== 'number' || typeof parsed.longitude !== 'number') {
+      return null;
+    }
+
+    return {
+      latitude: parsed.latitude,
+      longitude: parsed.longitude,
+    };
+  } catch {
+    return null;
+  }
+}
+
+function saveCachedCoordinates(coords: WeatherCoordinates) {
+  localStorage.setItem(WEATHER_COORDS_CACHE_KEY, JSON.stringify(coords));
+}
+
+async function resolveWeatherCoordinates() {
+  if (typeof navigator === 'undefined' || !('geolocation' in navigator)) {
+    const cached = readCachedCoordinates();
+    if (cached) {
+      return {
+        coords: cached,
+        warning: 'Live location is unavailable on this device. Using your last saved weather location.',
+      };
+    }
+
+    return {
+      coords: DEFAULT_WEATHER_COORDS,
+      warning: 'Live location is unavailable on this device. Using the default weather region.',
+    };
+  }
+
+  try {
+    const position = await new Promise<GeolocationPosition>((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(resolve, reject, {
+        enableHighAccuracy: true,
+        timeout: 12000,
+        maximumAge: 600000,
+      });
+    });
+
+    const coords = {
+      latitude: position.coords.latitude,
+      longitude: position.coords.longitude,
+    };
+    saveCachedCoordinates(coords);
+
+    return { coords, warning: '' };
+  } catch {
+    const cached = readCachedCoordinates();
+    if (cached) {
+      return {
+        coords: cached,
+        warning: 'Live location access is blocked. Using your last saved weather location.',
+      };
+    }
+
+    return {
+      coords: DEFAULT_WEATHER_COORDS,
+      warning: window.isSecureContext
+        ? 'Live location access is blocked. Using the default weather region.'
+        : 'This network URL is not secure for geolocation. Using the default weather region instead.',
+    };
   }
 }
 
@@ -228,27 +311,13 @@ async function fallbackWeatherDecision(latitude: number, longitude: number, crop
   });
 }
 
-function pushBrowserNotification(title: string, body: string) {
-  if (!('Notification' in window)) return;
-  if (Notification.permission === 'granted') {
-    new Notification(title, { body });
-    return;
-  }
-  if (Notification.permission !== 'denied') {
-    Notification.requestPermission().then((permission) => {
-      if (permission === 'granted') {
-        new Notification(title, { body });
-      }
-    });
-  }
-}
-
 export function Weather() {
   const { language, t } = useLanguage();
   const [data, setData] = useState<WeatherDecisionResponse | null>(null);
   const [aiAdvice, setAiAdvice] = useState('');
   const [aiAdviceLoading, setAiAdviceLoading] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [notice, setNotice] = useState('');
   const [error, setError] = useState('');
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const [detailedView, setDetailedView] = useState(false);
@@ -368,28 +437,28 @@ export function Weather() {
 
     const load = async () => {
       setLoading(true);
+      setNotice('');
       setError('');
 
       try {
-        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, {
-            enableHighAccuracy: true,
-            timeout: 12000,
-            maximumAge: 600000,
-          });
-        });
-
-        const { latitude, longitude } = position.coords;
+        const { coords, warning } = await resolveWeatherCoordinates();
+        const { latitude, longitude } = coords;
         let result: WeatherDecisionResponse;
+        let nextNotice = warning;
 
         try {
           result = await api.getWeatherDecision(latitude, longitude, crop);
         } catch {
           result = await fallbackWeatherDecision(latitude, longitude, crop);
+          nextNotice = [nextNotice, 'Backend unavailable. Using direct weather fallback.'].filter(Boolean).join(' ');
           setError(language === 'te' ? 'బ్యాక్‌ఎండ్ అందుబాటులో లేదు. ప్రత్యక్ష వాతావరణ డేటాతో కొనసాగిస్తోంది.' : 'Backend unavailable. Using direct weather fallback.');
         }
 
         setData(result);
+        setError('');
+        if (nextNotice) {
+          setNotice(nextNotice);
+        }
         void requestAiAdvice(result);
         localStorage.setItem(CACHE_KEY, JSON.stringify(result));
         await syncAndNotifyAlerts(result);
@@ -452,6 +521,8 @@ export function Weather() {
             : 'Offline mode enabled. Last synced advisory is used in low-network areas.'}
         </p>
       )}
+
+      {notice && <p className="mb-4 rounded-lg bg-blue-50 p-3 text-sm text-blue-800">{notice}</p>}
 
       {error && <p className="mb-4 rounded-lg bg-yellow-50 p-3 text-sm text-yellow-800">{error}</p>}
 
