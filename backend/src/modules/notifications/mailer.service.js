@@ -72,6 +72,20 @@ function readSmtpHost() {
   return normalizeEnvValue(process.env.SMTP_HOST);
 }
 
+function readPositiveInteger(value, fallback) {
+  const parsed = Number(value);
+  return Number.isFinite(parsed) && parsed > 0 ? Math.trunc(parsed) : fallback;
+}
+
+function readSmtpTimeouts() {
+  return {
+    connectionTimeout: readPositiveInteger(process.env.SMTP_CONNECTION_TIMEOUT_MS, 10000),
+    greetingTimeout: readPositiveInteger(process.env.SMTP_GREETING_TIMEOUT_MS, 10000),
+    socketTimeout: readPositiveInteger(process.env.SMTP_SOCKET_TIMEOUT_MS, 20000),
+    sendTimeout: readPositiveInteger(process.env.SMTP_SEND_TIMEOUT_MS, 25000),
+  };
+}
+
 export function isEmailTransportConfigured() {
   const service = readSmtpService();
   const host = readSmtpHost();
@@ -89,10 +103,14 @@ function buildTransportOptions() {
   const service = readSmtpService();
   const user = readSmtpUser();
   const pass = readSmtpPassword();
+  const timeouts = readSmtpTimeouts();
 
   if (service) {
     return {
       service,
+      connectionTimeout: timeouts.connectionTimeout,
+      greetingTimeout: timeouts.greetingTimeout,
+      socketTimeout: timeouts.socketTimeout,
       auth: {
         user,
         pass,
@@ -104,6 +122,9 @@ function buildTransportOptions() {
     host: readSmtpHost(),
     port: Number(process.env.SMTP_PORT || 587),
     secure: String(process.env.SMTP_SECURE || 'false') === 'true',
+    connectionTimeout: timeouts.connectionTimeout,
+    greetingTimeout: timeouts.greetingTimeout,
+    socketTimeout: timeouts.socketTimeout,
     auth: {
       user,
       pass,
@@ -222,12 +243,28 @@ async function sendMail({ to, subject, html, text, category = 'system' }) {
   }
 
   try {
-    const response = await getTransporter().sendMail({
-      from: normalizeFromHeader(process.env.EMAIL_FROM),
-      to: normalizedTo,
-      subject: normalizedSubject,
-      html,
-      text,
+    const transporterInstance = getTransporter();
+    const sendTimeoutMs = readSmtpTimeouts().sendTimeout;
+    let sendTimeoutId = null;
+    const sendTimeoutPromise = new Promise((_, reject) => {
+      sendTimeoutId = setTimeout(() => {
+        reject(new Error(`SMTP send timed out after ${sendTimeoutMs}ms.`));
+      }, sendTimeoutMs);
+    });
+
+    const response = await Promise.race([
+      transporterInstance.sendMail({
+        from: normalizeFromHeader(process.env.EMAIL_FROM),
+        to: normalizedTo,
+        subject: normalizedSubject,
+        html,
+        text,
+      }),
+      sendTimeoutPromise,
+    ]).finally(() => {
+      if (sendTimeoutId) {
+        clearTimeout(sendTimeoutId);
+      }
     });
     const delivery = summarizeDelivery(response);
 
