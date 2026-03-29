@@ -125,6 +125,39 @@ function getTransporter() {
   return transporter;
 }
 
+function summarizeDelivery(response) {
+  const accepted = Array.isArray(response?.accepted)
+    ? response.accepted
+        .map((item) => String(item || '').trim())
+        .filter(Boolean)
+    : [];
+  const rejected = Array.isArray(response?.rejected)
+    ? response.rejected
+        .map((item) => String(item || '').trim())
+        .filter(Boolean)
+    : [];
+  const delivered = accepted.length > 0 && rejected.length === 0;
+
+  if (delivered) {
+    return {
+      delivered: true,
+      errorMessage: null,
+    };
+  }
+
+  if (rejected.length > 0) {
+    return {
+      delivered: false,
+      errorMessage: `SMTP rejected recipient(s): ${rejected.join(', ')}.`,
+    };
+  }
+
+  return {
+    delivered: false,
+    errorMessage: 'SMTP accepted the request, but no recipient delivery was confirmed.',
+  };
+}
+
 function buildPayloadPreview(text, html, category) {
   if (category === 'otp') {
     return 'OTP verification email generated for secure admin verification.';
@@ -196,6 +229,7 @@ async function sendMail({ to, subject, html, text, category = 'system' }) {
       html,
       text,
     });
+    const delivery = summarizeDelivery(response);
 
     const deliveredEntry = {
       to: normalizedTo,
@@ -203,8 +237,8 @@ async function sendMail({ to, subject, html, text, category = 'system' }) {
       category,
       transport: 'smtp',
       messageId: response?.messageId || null,
-      delivered: true,
-      errorMessage: null,
+      delivered: delivery.delivered,
+      errorMessage: delivery.errorMessage,
       payloadPreview,
     };
     const emailLog = await persistEmailLog(deliveredEntry);

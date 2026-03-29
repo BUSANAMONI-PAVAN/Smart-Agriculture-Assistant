@@ -133,13 +133,16 @@ export function Login() {
               password: adminForm.password,
             });
 
+      if (!response.delivered) {
+        resetOtpState();
+        setError(response.deliveryError || 'OTP email could not be delivered. Please try again after fixing SMTP.');
+        return;
+      }
+
       setOtpPurposeLabel(mode);
       setOtpSessionToken(response.otpSessionToken);
       setOtp('');
       setNotice(response.message);
-      if (!response.delivered) {
-        setError(response.deliveryError || 'OTP email could not be delivered. Please try again after fixing SMTP.');
-      }
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Unable to send OTP right now.');
     } finally {
@@ -176,10 +179,11 @@ export function Login() {
     try {
       const response = await api.resendAdminOtp({ otpSessionToken });
       setOtpSessionToken(response.otpSessionToken);
-      setNotice(response.message);
       if (!response.delivered) {
         setError(response.deliveryError || 'OTP email could not be delivered. Please try again after fixing SMTP.');
+        return;
       }
+      setNotice(response.message);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Unable to resend OTP.');
     } finally {
