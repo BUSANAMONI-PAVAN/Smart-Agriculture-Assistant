@@ -1,13 +1,114 @@
 import nodemailer from 'nodemailer';
+import { appendEmailLog } from '../admin/email.store.js';
 
 let transporter = null;
 
-export function isEmailTransportConfigured() {
-  return Boolean(process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASS);
+function normalizeEnvValue(value) {
+  return String(value || '').trim();
+}
+
+function extractEmailAddress(value) {
+  const trimmed = normalizeEnvValue(value);
+  if (!trimmed) {
+    return '';
+  }
+
+  const markdownMailtoMatch = trimmed.match(/\[[^\]]*?([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})[^\]]*]\(mailto:[^)]+\)/i);
+  if (markdownMailtoMatch) {
+    return markdownMailtoMatch[1].trim();
+  }
+
+  const angleBracketMatch = trimmed.match(/<([^>]+@[^>]+)>/);
+  if (angleBracketMatch) {
+    return angleBracketMatch[1].trim();
+  }
+
+  const plainEmailMatch = trimmed.match(/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i);
+  return plainEmailMatch ? plainEmailMatch[0].trim() : trimmed;
+}
+
+function normalizeFromHeader(value) {
+  const trimmed = normalizeEnvValue(value);
+  if (!trimmed) {
+    return 'Smart Agriculture <no-reply@smartagri.local>';
+  }
+
+  const markdownMatch = trimmed.match(/^(.*?)\s*\[[^\]]*?([A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,})[^\]]*]\(mailto:[^)]+\)\s*$/i);
+  if (markdownMatch) {
+    const name = markdownMatch[1].replace(/^"+|"+$/g, '').trim();
+    const email = markdownMatch[2].trim();
+    return name ? `${name} <${email}>` : email;
+  }
+
+  const angleBracketMatch = trimmed.match(/^(.*?)<([^>]+@[^>]+)>$/);
+  if (angleBracketMatch) {
+    const name = angleBracketMatch[1].replace(/^"+|"+$/g, '').trim();
+    const email = angleBracketMatch[2].trim();
+    return name ? `${name} <${email}>` : email;
+  }
+
+  const email = extractEmailAddress(trimmed);
+  if (email && email !== trimmed) {
+    const name = trimmed.replace(email, '').replace(/[<>\[\]()]/g, '').replace(/mailto:/gi, '').trim();
+    return name ? `${name} <${email}>` : email;
+  }
+
+  return trimmed;
 }
 
 function readSmtpPassword() {
-  return String(process.env.SMTP_PASS || '').replace(/\s+/g, '');
+  return normalizeEnvValue(process.env.SMTP_PASS).replace(/\s+/g, '');
+}
+
+function readSmtpUser() {
+  return extractEmailAddress(process.env.SMTP_USER);
+}
+
+function readSmtpService() {
+  return normalizeEnvValue(process.env.SMTP_SERVICE);
+}
+
+function readSmtpHost() {
+  return normalizeEnvValue(process.env.SMTP_HOST);
+}
+
+export function isEmailTransportConfigured() {
+  const service = readSmtpService();
+  const host = readSmtpHost();
+  const user = readSmtpUser();
+  const pass = readSmtpPassword();
+
+  return Boolean((service || host) && user && pass);
+}
+
+function buildTransportOptions() {
+  if (!isEmailTransportConfigured()) {
+    return null;
+  }
+
+  const service = readSmtpService();
+  const user = readSmtpUser();
+  const pass = readSmtpPassword();
+
+  if (service) {
+    return {
+      service,
+      auth: {
+        user,
+        pass,
+      },
+    };
+  }
+
+  return {
+    host: readSmtpHost(),
+    port: Number(process.env.SMTP_PORT || 587),
+    secure: String(process.env.SMTP_SECURE || 'false') === 'true',
+    auth: {
+      user,
+      pass,
+    },
+  };
 }
 
 function getTransporter() {
@@ -15,69 +116,124 @@ function getTransporter() {
     return transporter;
   }
 
-  if (isEmailTransportConfigured()) {
-    transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST,
-      port: Number(process.env.SMTP_PORT || 587),
-      secure: String(process.env.SMTP_SECURE || 'false') === 'true',
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: readSmtpPassword(),
-      },
-    });
-  } else {
-    transporter = nodemailer.createTransport({ jsonTransport: true });
+  const transportOptions = buildTransportOptions();
+  if (!transportOptions) {
+    return null;
   }
 
+  transporter = nodemailer.createTransport(transportOptions);
   return transporter;
 }
 
-async function sendMail({ to, subject, html, text }) {
-  const transport = isEmailTransportConfigured() ? 'smtp' : 'jsonTransport';
+function buildPayloadPreview(text, html, category) {
+  if (category === 'otp') {
+    return 'OTP verification email generated for secure admin verification.';
+  }
+
+  const rawPreview = String(text || html || '')
+    .replace(/<style[\s\S]*?<\/style>/gi, ' ')
+    .replace(/<[^>]+>/g, ' ')
+    .replace(/\b\d{6}\b/g, '******')
+    .replace(/\s+/g, ' ')
+    .trim();
+
+  return rawPreview.slice(0, 280);
+}
+
+async function persistEmailLog(entry) {
+  try {
+    return await appendEmailLog(entry);
+  } catch (error) {
+    console.error('Email log write failed', {
+      to: entry.to,
+      subject: entry.subject,
+      error: error?.message || String(error),
+    });
+    return null;
+  }
+}
+
+async function sendMail({ to, subject, html, text, category = 'system' }) {
+  const normalizedTo = extractEmailAddress(to);
+  const normalizedSubject = String(subject || '').trim() || 'Smart Agriculture notification';
+  const payloadPreview = buildPayloadPreview(text, html, category);
+
+  if (!normalizedTo) {
+    const failedEntry = {
+      to: '',
+      subject: normalizedSubject,
+      category,
+      transport: 'disabled',
+      messageId: null,
+      delivered: false,
+      errorMessage: 'Recipient email address is missing.',
+      payloadPreview,
+    };
+    const emailLog = await persistEmailLog(failedEntry);
+    return { ...failedEntry, id: emailLog?.id || null, createdAt: emailLog?.createdAt || null };
+  }
+
+  if (!isEmailTransportConfigured()) {
+    const failedEntry = {
+      to: normalizedTo,
+      subject: normalizedSubject,
+      category,
+      transport: 'disabled',
+      messageId: null,
+      delivered: false,
+      errorMessage: 'SMTP is not configured. Set SMTP_SERVICE or SMTP_HOST with SMTP_USER, SMTP_PASS, and EMAIL_FROM.',
+      payloadPreview,
+    };
+    const emailLog = await persistEmailLog(failedEntry);
+    return { ...failedEntry, id: emailLog?.id || null, createdAt: emailLog?.createdAt || null };
+  }
 
   try {
     const response = await getTransporter().sendMail({
-      from: process.env.EMAIL_FROM || 'Smart Agriculture <no-reply@smartagri.local>',
-      to,
-      subject,
+      from: normalizeFromHeader(process.env.EMAIL_FROM),
+      to: normalizedTo,
+      subject: normalizedSubject,
       html,
       text,
     });
 
-    return {
-      delivered: true,
-      transport,
+    const deliveredEntry = {
+      to: normalizedTo,
+      subject: normalizedSubject,
+      category,
+      transport: 'smtp',
       messageId: response?.messageId || null,
+      delivered: true,
       errorMessage: null,
+      payloadPreview,
     };
+    const emailLog = await persistEmailLog(deliveredEntry);
+    return { ...deliveredEntry, id: emailLog?.id || null, createdAt: emailLog?.createdAt || null };
   } catch (error) {
     console.error('Email delivery failed', {
-      to,
-      subject,
-      transport,
+      to: normalizedTo,
+      subject: normalizedSubject,
+      transport: 'smtp',
       error: error?.message || String(error),
     });
 
-    return {
-      delivered: false,
-      transport,
+    const failedEntry = {
+      to: normalizedTo,
+      subject: normalizedSubject,
+      category,
+      transport: 'smtp',
       messageId: null,
+      delivered: false,
       errorMessage: error?.message || 'Unknown email delivery error.',
+      payloadPreview,
     };
+    const emailLog = await persistEmailLog(failedEntry);
+    return { ...failedEntry, id: emailLog?.id || null, createdAt: emailLog?.createdAt || null };
   }
 }
 
 export async function sendEmail({ to, subject, text, html, category = 'system' }) {
-  const response = await sendMail({ to, subject, html, text });
-  return {
-    to,
-    subject,
-    category,
-    transport: response.transport,
-    messageId: response.messageId,
-    delivered: response.delivered,
-    errorMessage: response.errorMessage,
-  };
+  return sendMail({ to, subject, html, text, category });
 }
 
 export async function sendOTPEmail(email, otp) {
@@ -85,6 +241,7 @@ export async function sendOTPEmail(email, otp) {
   return sendMail({
     to: email,
     subject: 'Smart Agriculture OTP verification',
+    category: 'otp',
     text: message,
     html: `
       <div style="font-family:Arial,sans-serif;padding:24px;background:#f4f8ef;color:#1f3a1a">
@@ -105,6 +262,7 @@ export async function sendAccountChangeAlert(email, action) {
   return sendMail({
     to: email,
     subject: 'Smart Agriculture account change alert',
+    category: 'account-change',
     text: message,
     html: `
       <div style="font-family:Arial,sans-serif;padding:24px;background:#f4f8ef;color:#1f3a1a">
@@ -118,10 +276,11 @@ export async function sendAccountChangeAlert(email, action) {
   });
 }
 
-export async function sendSystemEmail({ email, subject, title, message }) {
+export async function sendSystemEmail({ email, subject, title, message, category = 'system' }) {
   return sendMail({
     to: email,
     subject,
+    category,
     text: `${title}\n\n${message}`,
     html: `
       <div style="font-family:Arial,sans-serif;padding:24px;background:#f4f8ef;color:#1f3a1a">

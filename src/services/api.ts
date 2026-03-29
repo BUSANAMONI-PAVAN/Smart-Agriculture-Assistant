@@ -79,7 +79,8 @@ export type AdminLoginPayload = {
 export type OtpChallengeResponse = {
   message: string;
   otpSessionToken: string;
-  debugOtp?: string;
+  delivered: boolean;
+  deliveryError: string | null;
 };
 
 export type AuditLogEntry = {
@@ -99,6 +100,8 @@ export type EmailLogEntry = {
   category: string;
   transport: string;
   messageId: string | null;
+  delivered: boolean;
+  errorMessage: string | null;
   payloadPreview: string;
   createdAt: string;
 };

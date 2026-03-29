@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { createAdmin, getUserById, touchLastLogin, updateAdminProfile, verifyAdminCredentials } from './auth.store.js';
 import { issueAccessToken, issueOtpChallengeToken, verifyToken } from './token.service.js';
 import { createOtpChallenge } from '../otp/otp.store.js';
-import { isEmailTransportConfigured, sendAccountChangeAlert, sendOTPEmail } from '../notifications/mailer.service.js';
+import { sendAccountChangeAlert, sendOTPEmail } from '../notifications/mailer.service.js';
 import { addAlert } from '../alerts/alerts.store.js';
 import { requireAuth, requireAdmin } from './auth.middleware.js';
 import { listFeatureFlags } from '../admin/feature.store.js';
@@ -63,6 +63,15 @@ function readActionProof(req, expectedPurpose) {
   return payload;
 }
 
+function buildOtpResponse(otpSessionToken, successMessage, failureMessage, delivery) {
+  return {
+    message: delivery.delivered ? successMessage : failureMessage,
+    otpSessionToken,
+    delivered: delivery.delivered,
+    deliveryError: delivery.errorMessage || null,
+  };
+}
+
 router.post('/farmer/register', validateRequest({ body: farmerRegisterSchema }), async (req, res) => {
   const user = await registerFarmer(req.body || {});
   await updateProfile(user.id, {
@@ -109,11 +118,14 @@ router.post('/admin/register', validateRequest({ body: adminRegisterSchema }), a
   const otp = await createOtpChallenge(user.id, 'admin_register');
   const delivery = await sendOTPEmail(user.email, otp);
 
-  res.status(202).json({
-    message: 'OTP sent to admin email for signup verification.',
-    otpSessionToken: issueOtpChallengeToken(user.id, 'admin_register'),
-    ...(!isEmailTransportConfigured() || !delivery.delivered ? { debugOtp: otp } : {}),
-  });
+  res.status(202).json(
+    buildOtpResponse(
+      issueOtpChallengeToken(user.id, 'admin_register'),
+      'OTP sent to admin email for signup verification.',
+      'Admin account created, but the OTP email could not be delivered. Check SMTP settings and use Resend OTP.',
+      delivery,
+    ),
+  );
 });
 
 router.post('/admin/login', validateRequest({ body: adminLoginSchema }), async (req, res) => {
@@ -121,11 +133,14 @@ router.post('/admin/login', validateRequest({ body: adminLoginSchema }), async (
   const otp = await createOtpChallenge(user.id, 'admin_login');
   const delivery = await sendOTPEmail(user.email, otp);
 
-  res.status(202).json({
-    message: 'OTP sent to admin email for login verification.',
-    otpSessionToken: issueOtpChallengeToken(user.id, 'admin_login'),
-    ...(!isEmailTransportConfigured() || !delivery.delivered ? { debugOtp: otp } : {}),
-  });
+  res.status(202).json(
+    buildOtpResponse(
+      issueOtpChallengeToken(user.id, 'admin_login'),
+      'OTP sent to admin email for login verification.',
+      'OTP email could not be delivered. Check SMTP settings and use Resend OTP.',
+      delivery,
+    ),
+  );
 });
 
 router.get('/me', requireAuth, async (req, res) => {

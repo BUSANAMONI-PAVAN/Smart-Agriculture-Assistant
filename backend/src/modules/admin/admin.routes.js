@@ -7,6 +7,7 @@ import { listFeatureFlags, updateFeatureFlags } from './feature.store.js';
 import { sendAccountChangeAlert, sendSystemEmail } from '../notifications/mailer.service.js';
 import { AppError } from '../../lib/errors.js';
 import { appendAuditLog, listAuditLogs } from './audit.store.js';
+import { listEmailLogs } from './email.store.js';
 import { validateRequest } from '../../lib/validate.js';
 
 const router = Router();
@@ -78,6 +79,7 @@ router.get('/console', async (req, res) => {
   const alerts = await getAlerts({});
   const features = await listFeatureFlags();
   const auditLog = await listAuditLogs(100);
+  const emailLog = await listEmailLogs(100);
 
   res.json({
     stats: {
@@ -93,7 +95,7 @@ router.get('/console', async (req, res) => {
     features,
     alerts: alerts.slice(0, 20),
     auditLog,
-    emailLog: [],
+    emailLog,
     currentUser: req.auth.user,
   });
 });
@@ -136,6 +138,7 @@ router.post('/users', validateRequest({ body: createUserSchema }), async (req, r
       subject: 'Smart Agriculture account created',
       title: 'Account ready',
       message: `Your ${user.role} account has been created and is ready to use.`,
+      category: 'admin-user-create',
     });
   }
 
@@ -171,6 +174,7 @@ router.patch('/users/:id', validateRequest({ params: idParamSchema, body: update
       subject: 'Smart Agriculture account updated',
       title: 'Account update notice',
       message: 'Your account details were updated by an administrator.',
+      category: 'admin-user-update',
     });
   }
 
@@ -202,6 +206,17 @@ router.delete('/users/:id', validateRequest({ params: idParamSchema, body: delet
       targetUserId: user.id,
     },
   });
+
+  if (user.email) {
+    await sendSystemEmail({
+      email: user.email,
+      subject: 'Smart Agriculture account removed',
+      title: 'Account removed',
+      message: 'Your account was removed by an administrator. Contact the platform administrator if you need help.',
+      category: 'admin-user-delete',
+    });
+  }
+
   res.json({ message: 'User deleted successfully.', user });
 });
 

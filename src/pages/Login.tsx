@@ -59,7 +59,7 @@ export function Login() {
   const [otp, setOtp] = useState('');
   const [otpSessionToken, setOtpSessionToken] = useState('');
   const [otpPurposeLabel, setOtpPurposeLabel] = useState<'login' | 'register'>('login');
-  const [debugOtpMessage, setDebugOtpMessage] = useState('');
+  const [notice, setNotice] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
 
@@ -76,11 +76,12 @@ export function Login() {
   const resetOtpState = () => {
     setOtpSessionToken('');
     setOtp('');
-    setDebugOtpMessage('');
+    setNotice('');
   };
 
   const handleModeSwitch = (nextMode: AuthMode) => {
     setError('');
+    setNotice('');
     resetOtpState();
     navigate(nextMode === 'register' ? '/register' : '/login');
   };
@@ -88,6 +89,7 @@ export function Login() {
   const handleRoleSwitch = (nextRole: AuthRole) => {
     setRole(nextRole);
     setError('');
+    setNotice('');
     resetOtpState();
   };
 
@@ -95,6 +97,7 @@ export function Login() {
     event.preventDefault();
     setSubmitting(true);
     setError('');
+    setNotice('');
 
     try {
       const session =
@@ -115,6 +118,7 @@ export function Login() {
     event.preventDefault();
     setSubmitting(true);
     setError('');
+    setNotice('');
 
     try {
       const response =
@@ -132,7 +136,10 @@ export function Login() {
       setOtpPurposeLabel(mode);
       setOtpSessionToken(response.otpSessionToken);
       setOtp('');
-      setDebugOtpMessage(response.debugOtp || '');
+      setNotice(response.message);
+      if (!response.delivered) {
+        setError(response.deliveryError || 'OTP email could not be delivered. Please try again after fixing SMTP.');
+      }
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Unable to send OTP right now.');
     } finally {
@@ -144,6 +151,7 @@ export function Login() {
     event.preventDefault();
     setSubmitting(true);
     setError('');
+    setNotice('');
 
     try {
       const session = await api.verifyAdminOtp({
@@ -163,11 +171,15 @@ export function Login() {
   const handleResendOtp = async () => {
     setSubmitting(true);
     setError('');
+    setNotice('');
 
     try {
       const response = await api.resendAdminOtp({ otpSessionToken });
       setOtpSessionToken(response.otpSessionToken);
-      setDebugOtpMessage(response.debugOtp || '');
+      setNotice(response.message);
+      if (!response.delivered) {
+        setError(response.deliveryError || 'OTP email could not be delivered. Please try again after fixing SMTP.');
+      }
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Unable to resend OTP.');
     } finally {
@@ -288,9 +300,9 @@ export function Login() {
             <p className="mx-auto mt-3 max-w-[290px] text-[0.92rem] leading-6 text-white/76">{subtitle}</p>
           </div>
 
-          {debugOtpMessage && (
+          {notice && (
             <div className="mt-5 rounded-2xl border border-white/18 bg-white/10 px-4 py-3 text-center text-sm font-semibold text-white/92">
-              Local development OTP: <span className="tracking-[0.2em]">{debugOtpMessage}</span>
+              {notice}
             </div>
           )}
 

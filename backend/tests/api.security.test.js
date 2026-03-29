@@ -70,11 +70,16 @@ vi.mock('../src/modules/admin/audit.store.js', () => ({
   listAuditLogs: vi.fn(async () => []),
 }));
 
+vi.mock('../src/modules/admin/email.store.js', () => ({
+  appendEmailLog: vi.fn(async () => ({ id: 'email-log-1' })),
+  listEmailLogs: vi.fn(async () => []),
+}));
+
 vi.mock('../src/modules/notifications/mailer.service.js', () => ({
-  isEmailTransportConfigured: vi.fn(() => false),
-  sendOTPEmail: vi.fn(async () => ({})),
-  sendAccountChangeAlert: vi.fn(async () => ({})),
-  sendSystemEmail: vi.fn(async () => ({})),
+  isEmailTransportConfigured: vi.fn(() => true),
+  sendOTPEmail: vi.fn(async () => ({ delivered: true, errorMessage: null, transport: 'smtp' })),
+  sendAccountChangeAlert: vi.fn(async () => ({ delivered: true, errorMessage: null, transport: 'smtp' })),
+  sendSystemEmail: vi.fn(async () => ({ delivered: true, errorMessage: null, transport: 'smtp' })),
 }));
 
 vi.mock('../src/modules/ai/gemini.service.js', () => ({
@@ -194,4 +199,3 @@ describe('Notification Delete Security', () => {
     expect(withOtp.status).toBe(200);
   });
 });
-

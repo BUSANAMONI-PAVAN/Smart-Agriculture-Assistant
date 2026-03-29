@@ -284,6 +284,23 @@ async function createTables() {
       INDEX idx_audit_action_created (action, created_at DESC)
     )
   `);
+
+  await pool.execute(`
+    CREATE TABLE IF NOT EXISTS email_logs (
+      id BIGINT PRIMARY KEY AUTO_INCREMENT,
+      to_email VARCHAR(190) NOT NULL,
+      subject VARCHAR(255) NOT NULL,
+      category VARCHAR(60) NOT NULL DEFAULT 'system',
+      transport VARCHAR(40) NOT NULL DEFAULT 'disabled',
+      message_id VARCHAR(255) NULL,
+      delivered TINYINT(1) NOT NULL DEFAULT 0,
+      error_message TEXT NULL,
+      payload_preview TEXT NOT NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      INDEX idx_email_logs_created (created_at DESC),
+      INDEX idx_email_logs_category_created (category, created_at DESC)
+    )
+  `);
 }
 
 async function ensureUsersSchema() {

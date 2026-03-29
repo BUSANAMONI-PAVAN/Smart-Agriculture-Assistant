@@ -56,11 +56,10 @@ export function AdminPanel() {
     try {
       const response = await api.requestAdminActionOtp('system_control');
       setOtpSessionToken(response.otpSessionToken);
-      setMessage(
-        response.debugOtp
-          ? `OTP sent. Local development OTP: ${response.debugOtp}`
-          : 'OTP sent to the admin email. Verify it to apply feature changes.',
-      );
+      setMessage(response.message);
+      if (!response.delivered) {
+        setError(response.deliveryError || 'Admin OTP email could not be delivered. Please fix SMTP and retry.');
+      }
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Unable to request OTP.');
     } finally {
@@ -77,11 +76,10 @@ export function AdminPanel() {
       setActionOtpSessionToken(response.otpSessionToken);
       setActionOtp('');
       setActionOtpProofToken('');
-      setMessage(
-        response.debugOtp
-          ? `Admin action OTP sent. Local development OTP: ${response.debugOtp}`
-          : 'Admin action OTP sent. Verify to unlock user and notification changes.',
-      );
+      setMessage(response.message);
+      if (!response.delivered) {
+        setError(response.deliveryError || 'Admin action OTP email could not be delivered. Please fix SMTP and retry.');
+      }
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Unable to request admin action OTP.');
     } finally {
@@ -454,6 +452,37 @@ export function AdminPanel() {
                 ))
               ) : (
                 <p className="rounded-xl bg-gray-50 p-3 text-sm text-gray-500">No audit records yet.</p>
+              )}
+            </div>
+          </div>
+
+          <div className="rounded-2xl border bg-white p-5 shadow-sm">
+            <h2 className="text-2xl font-black text-[#17321f]">Email activity</h2>
+            <div className="mt-3 max-h-[360px] space-y-2 overflow-auto">
+              {consoleData.emailLog.length ? (
+                consoleData.emailLog.map((entry) => (
+                  <article key={entry.id} className="rounded-xl border border-gray-100 bg-gray-50 p-3">
+                    <div className="flex items-center justify-between gap-3">
+                      <p className="text-sm font-semibold text-[#17321f]">{entry.subject}</p>
+                      <span
+                        className={`rounded-full px-2 py-1 text-[11px] font-bold uppercase ${
+                          entry.delivered ? 'bg-[#eef6e8] text-[#2f6b32]' : 'bg-[#fff2ef] text-[#9f3e2c]'
+                        }`}
+                      >
+                        {entry.delivered ? 'Delivered' : 'Failed'}
+                      </span>
+                    </div>
+                    <p className="mt-1 text-xs text-gray-700">To: {entry.to}</p>
+                    <p className="mt-1 text-xs text-gray-600">
+                      {entry.category} via {entry.transport}
+                    </p>
+                    <p className="mt-2 text-xs text-gray-600">{entry.payloadPreview || 'No preview available.'}</p>
+                    {entry.errorMessage ? <p className="mt-2 text-xs font-medium text-[#9f3e2c]">{entry.errorMessage}</p> : null}
+                    <p className="mt-2 text-[11px] text-gray-500">{new Date(entry.createdAt).toLocaleString()}</p>
+                  </article>
+                ))
+              ) : (
+                <p className="rounded-xl bg-gray-50 p-3 text-sm text-gray-500">No email activity yet.</p>
               )}
             </div>
           </div>

@@ -5,7 +5,7 @@ import { issueAccessToken, issueActionProofToken, issueOtpChallengeToken, verify
 import { activateAdmin } from '../auth/auth.store.js';
 import { createOtpChallenge, verifyOtpChallenge } from './otp.store.js';
 import { addAlert } from '../alerts/alerts.store.js';
-import { isEmailTransportConfigured, sendAccountChangeAlert, sendOTPEmail, sendSystemEmail } from '../notifications/mailer.service.js';
+import { sendAccountChangeAlert, sendOTPEmail, sendSystemEmail } from '../notifications/mailer.service.js';
 import { requireAuth, requireAdmin } from '../auth/auth.middleware.js';
 import { AppError } from '../../lib/errors.js';
 import { listFeatureFlags } from '../admin/feature.store.js';
@@ -36,6 +36,15 @@ function readChallengeToken(inputToken) {
     throw new AppError(400, 'Invalid OTP session token.');
   }
   return payload;
+}
+
+function buildOtpResponse(otpSessionToken, successMessage, failureMessage, delivery) {
+  return {
+    message: delivery.delivered ? successMessage : failureMessage,
+    otpSessionToken,
+    delivered: delivery.delivered,
+    deliveryError: delivery.errorMessage || null,
+  };
 }
 
 router.post('/admin/verify', validateRequest({ body: otpVerifySchema }), async (req, res) => {
@@ -71,6 +80,7 @@ router.post('/admin/verify', validateRequest({ body: otpVerifySchema }), async (
       subject: 'Welcome to Smart Agriculture Admin',
       title: 'Registration successful',
       message: 'Your admin account has been verified and activated successfully.',
+      category: 'admin-register-confirmation',
     });
   }
 
@@ -95,11 +105,14 @@ router.post('/admin/resend', validateRequest({ body: otpResendSchema }), async (
   const otp = await createOtpChallenge(user.id, challenge.purpose);
   const delivery = await sendOTPEmail(user.email, otp);
 
-  res.json({
-    message: 'OTP resent successfully.',
-    otpSessionToken: issueOtpChallengeToken(user.id, challenge.purpose),
-    ...(!isEmailTransportConfigured() || !delivery.delivered ? { debugOtp: otp } : {}),
-  });
+  res.json(
+    buildOtpResponse(
+      issueOtpChallengeToken(user.id, challenge.purpose),
+      'OTP resent successfully. Check your email inbox.',
+      'OTP was regenerated, but the email could not be delivered. Check SMTP settings and try again.',
+      delivery,
+    ),
+  );
 });
 
 router.post('/admin/request', requireAuth, requireAdmin, validateRequest({ body: otpRequestSchema }), async (req, res) => {
@@ -112,11 +125,14 @@ router.post('/admin/request', requireAuth, requireAdmin, validateRequest({ body:
   const otp = await createOtpChallenge(user.id, purpose);
   const delivery = await sendOTPEmail(user.email, otp);
 
-  res.json({
-    message: 'OTP sent for sensitive action verification.',
-    otpSessionToken: issueOtpChallengeToken(user.id, purpose),
-    ...(!isEmailTransportConfigured() || !delivery.delivered ? { debugOtp: otp } : {}),
-  });
+  res.json(
+    buildOtpResponse(
+      issueOtpChallengeToken(user.id, purpose),
+      'OTP sent for sensitive action verification. Check your email inbox.',
+      'Sensitive-action OTP was created, but the email could not be delivered. Check SMTP settings and retry.',
+      delivery,
+    ),
+  );
 });
 
 router.post('/admin/verify-action', requireAuth, requireAdmin, validateRequest({ body: otpVerifySchema }), async (req, res) => {

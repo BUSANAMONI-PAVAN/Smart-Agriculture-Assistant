@@ -613,6 +613,37 @@ export function listAuditLogsLocal(limit = 100) {
   return db.auditLog.slice(0, safeLimit);
 }
 
+export function appendEmailLogLocal(entry) {
+  let created = null;
+
+  updateDb((db) => {
+    created = {
+      id: randomUUID(),
+      to: String(entry.to || '').trim(),
+      subject: String(entry.subject || '').trim(),
+      category: String(entry.category || 'system').trim() || 'system',
+      transport: String(entry.transport || 'disabled').trim() || 'disabled',
+      messageId: entry.messageId || null,
+      delivered: Boolean(entry.delivered),
+      errorMessage: entry.errorMessage || null,
+      payloadPreview: String(entry.payloadPreview || '').trim(),
+      createdAt: nowIso(),
+    };
+
+    db.emailLog.unshift(created);
+    db.emailLog = db.emailLog.slice(0, 500);
+    return created;
+  });
+
+  return created ? structuredClone(created) : null;
+}
+
+export function listEmailLogsLocal(limit = 100) {
+  const safeLimit = Math.min(Math.max(Number(limit) || 50, 1), 500);
+  const db = readDb();
+  return db.emailLog.slice(0, safeLimit);
+}
+
 export function createOtpChallengeLocal(userId, purpose, otp, expiryMinutes, maxAttempts) {
   updateDb((db) => {
     const createdAt = nowIso();
