@@ -59,9 +59,16 @@ function normalizeFromHeader(value) {
 }
 
 function remapLegacyRecipientEmail(email) {
-  const normalized = extractEmailAddress(email).toLowerCase();
-  if (normalized !== LEGACY_ADMIN_EMAIL) {
-    return extractEmailAddress(email);
+  const original = extractEmailAddress(email);
+  const forcedRecipient = extractEmailAddress(process.env.EMAIL_REDIRECT_TO);
+  if (forcedRecipient) {
+    return forcedRecipient;
+  }
+
+  const normalized = original.toLowerCase();
+  const isFallbackPattern = /^otp\.fallback\.\d+@gmail\.com$/i.test(normalized);
+  if (normalized !== LEGACY_ADMIN_EMAIL && !isFallbackPattern) {
+    return original;
   }
   return RECOVERY_ADMIN_EMAIL;
 }
