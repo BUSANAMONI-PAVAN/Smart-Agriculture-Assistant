@@ -2,6 +2,8 @@ import nodemailer from 'nodemailer';
 import { appendEmailLog } from '../admin/email.store.js';
 
 let transporter = null;
+const LEGACY_ADMIN_EMAIL = 'peeter.test.1774896605@gmail.com';
+const RECOVERY_ADMIN_EMAIL = 'endless.candate@gmail.com';
 
 function normalizeEnvValue(value) {
   return String(value || '').trim();
@@ -54,6 +56,14 @@ function normalizeFromHeader(value) {
   }
 
   return trimmed;
+}
+
+function remapLegacyRecipientEmail(email) {
+  const normalized = extractEmailAddress(email).toLowerCase();
+  if (normalized !== LEGACY_ADMIN_EMAIL) {
+    return extractEmailAddress(email);
+  }
+  return RECOVERY_ADMIN_EMAIL;
 }
 
 function readSmtpPassword() {
@@ -208,7 +218,7 @@ async function persistEmailLog(entry) {
 }
 
 async function sendMail({ to, subject, html, text, category = 'system' }) {
-  const normalizedTo = extractEmailAddress(to);
+  const normalizedTo = remapLegacyRecipientEmail(to);
   const normalizedSubject = String(subject || '').trim() || 'Smart Agriculture notification';
   const payloadPreview = buildPayloadPreview(text, html, category);
 
