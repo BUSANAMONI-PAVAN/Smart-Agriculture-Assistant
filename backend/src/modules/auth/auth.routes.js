@@ -144,16 +144,21 @@ router.post('/admin/register', validateRequest({ body: adminRegisterSchema }), a
 });
 
 router.post('/admin/login', validateRequest({ body: adminLoginSchema }), async (req, res) => {
-  const user = await verifyAdminCredentials(req.body?.email, req.body?.password);
-  const otp = await createOtpChallenge(user.id, 'admin_login');
-  const otpHash = createOtpTokenHash(user.id, 'admin_login', otp);
+  const user = await verifyAdminCredentials(req.body?.email, req.body?.password, { allowPending: true });
+  const challengePurpose = user.status === 'pending' ? 'admin_register' : 'admin_login';
+  const otp = await createOtpChallenge(user.id, challengePurpose);
+  const otpHash = createOtpTokenHash(user.id, challengePurpose, otp);
   const delivery = await sendOTPEmail(user.email, otp);
 
   res.status(202).json(
     buildOtpResponse(
-      issueOtpChallengeToken(user.id, 'admin_login', { otpHash }),
-      'OTP sent to admin email for login verification.',
-      'OTP email could not be delivered. Check SMTP settings and use Resend OTP.',
+      issueOtpChallengeToken(user.id, challengePurpose, { otpHash }),
+      challengePurpose === 'admin_register'
+        ? 'Signup verification is pending. OTP sent to admin email to complete registration.'
+        : 'OTP sent to admin email for login verification.',
+      challengePurpose === 'admin_register'
+        ? 'Signup verification is pending, but OTP email could not be delivered. Check SMTP settings and use Resend OTP.'
+        : 'OTP email could not be delivered. Check SMTP settings and use Resend OTP.',
       delivery,
     ),
   );

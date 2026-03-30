@@ -201,6 +201,14 @@ export function createAdminLocal(payload, status = 'pending') {
   updateDb((db) => {
     const existing = db.users.find((user) => normalizeEmail(user.email) === email);
     if (existing) {
+      if (existing.role === 'admin' && existing.status === 'pending') {
+        const { salt, hash } = hashPassword(password);
+        existing.name = name;
+        existing.passwordHash = `${salt}:${hash}`;
+        existing.updatedAt = nowIso();
+        created = sanitizeUser(existing);
+        return created;
+      }
       throw new AppError(409, 'Admin email already exists.');
     }
 
@@ -226,8 +234,9 @@ export function createAdminLocal(payload, status = 'pending') {
   return created;
 }
 
-export function verifyAdminCredentialsLocal(email, password) {
+export function verifyAdminCredentialsLocal(email, password, options = {}) {
   const normalizedEmail = normalizeEmail(email);
+  const allowPending = Boolean(options.allowPending);
   const db = readDb();
   const user = db.users.find((entry) => entry.role === 'admin' && normalizeEmail(entry.email) === normalizedEmail);
 
@@ -239,7 +248,7 @@ export function verifyAdminCredentialsLocal(email, password) {
   if (!salt || !hash || !verifyPassword(password, salt, hash)) {
     throw new AppError(401, 'Invalid email or password.');
   }
-  if (user.status === 'pending') {
+  if (user.status === 'pending' && !allowPending) {
     throw new AppError(403, 'Admin signup pending verification. Please complete signup OTP.');
   }
   if (user.status === 'disabled') {

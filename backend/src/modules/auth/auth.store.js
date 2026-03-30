@@ -147,8 +147,22 @@ async function createAdminRecord(payload, status = 'pending') {
 
   return withLocalFallback(
     async () => {
-      const existing = await fetchOne('SELECT id FROM users WHERE email = ?', [email]);
+      const existing = await fetchOne('SELECT * FROM users WHERE email = ?', [email]);
       if (existing) {
+        if (existing.role === 'admin' && existing.status === 'pending') {
+          const { salt, hash } = hashPassword(password);
+          await query(
+            `
+              UPDATE users
+              SET name = ?, password_hash = ?, updated_at = NOW()
+              WHERE id = ?
+            `,
+            [name, `${salt}:${hash}`, existing.id],
+          );
+
+          return getUserById(existing.id);
+        }
+
         throw new AppError(409, 'Admin email already exists.');
       }
 
@@ -173,8 +187,9 @@ function readStoredPassword(passwordHash) {
   return { salt, hash };
 }
 
-export async function verifyAdminCredentials(email, password) {
+export async function verifyAdminCredentials(email, password, options = {}) {
   const normalizedEmail = normalizeEmail(email);
+  const allowPending = Boolean(options.allowPending);
   return withLocalFallback(
     async () => {
       const user = await fetchOne('SELECT * FROM users WHERE role = ? AND email = ?', ['admin', normalizedEmail]);
@@ -188,7 +203,7 @@ export async function verifyAdminCredentials(email, password) {
         throw new AppError(401, 'Invalid email or password.');
       }
 
-      if (user.status === 'pending') {
+      if (user.status === 'pending' && !allowPending) {
         throw new AppError(403, 'Admin signup pending verification. Please complete signup OTP.');
       }
 
@@ -198,7 +213,7 @@ export async function verifyAdminCredentials(email, password) {
 
       return sanitizeUser(user);
     },
-    () => verifyAdminCredentialsLocal(normalizedEmail, password),
+    () => verifyAdminCredentialsLocal(normalizedEmail, password, { allowPending }),
   );
 }
 
