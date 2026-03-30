@@ -74,6 +74,10 @@ function remapLegacyRecipientEmail(email) {
   return RECOVERY_ADMIN_EMAIL;
 }
 
+export function resolveRecipientForDelivery(email) {
+  return remapLegacyRecipientEmail(email);
+}
+
 function readSmtpPassword() {
   return normalizeEnvValue(process.env.SMTP_PASS).replace(/\s+/g, '');
 }
@@ -115,6 +119,26 @@ export function isEmailTransportConfigured() {
   const pass = readSmtpPassword();
 
   return Boolean((service || host) && user && pass);
+}
+
+export function getEmailDeliveryConfigSummary() {
+  const service = readSmtpService();
+  const host = readSmtpHost();
+  const user = readSmtpUser();
+  const redirectMode = normalizeEnvValue(process.env.EMAIL_REDIRECT_MODE || 'fallback');
+  const redirectTo = extractEmailAddress(process.env.EMAIL_REDIRECT_TO);
+
+  return {
+    configured: isEmailTransportConfigured(),
+    service: service || null,
+    host: host || null,
+    user: user || null,
+    from: normalizeFromHeader(process.env.EMAIL_FROM),
+    redirectMode,
+    redirectTo: redirectTo || null,
+    retries: readSmtpRetryCount(),
+    timeouts: readSmtpTimeouts(),
+  };
 }
 
 function buildTransportOptions() {

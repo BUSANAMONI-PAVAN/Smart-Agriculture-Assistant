@@ -63,6 +63,21 @@ export async function getUserById(userId) {
   );
 }
 
+export async function getUserByEmail(email) {
+  const normalizedEmail = normalizeEmail(email);
+  if (!normalizedEmail) {
+    return null;
+  }
+
+  return withLocalFallback(
+    async () => {
+      const row = await fetchOne('SELECT * FROM users WHERE email = ?', [normalizedEmail]);
+      return sanitizeUser(row);
+    },
+    () => listUsersLocal().find((entry) => normalizeEmail(entry.email) === normalizedEmail) || null,
+  );
+}
+
 export async function getUserRecordById(userId) {
   return withLocalFallback(
     () => fetchOne('SELECT * FROM users WHERE id = ?', [userId]),
@@ -128,6 +143,11 @@ export async function createFarmer(payload) {
 
 export async function createAdmin(payload) {
   return createAdminRecord(payload, 'pending');
+}
+
+function buildOwnerPassword() {
+  const base = randomUUID().replace(/-/g, '');
+  return `${base}Aa1!`;
 }
 
 async function createAdminRecord(payload, status = 'pending') {
@@ -306,6 +326,73 @@ export async function createManagedUser(payload) {
   }
 
   return createAdminRecord(payload, 'active');
+}
+
+export async function ensureOwnerAdmin(payload) {
+  const name = String(payload.name || '').trim() || 'Owner';
+  const email = normalizeEmail(payload.email);
+
+  if (!email) {
+    throw new AppError(400, 'Owner email is required.');
+  }
+
+  return withLocalFallback(
+    async () => {
+      const existing = await fetchOne('SELECT * FROM users WHERE email = ?', [email]);
+      if (existing) {
+        let nextPasswordHash = existing.password_hash;
+        if (!nextPasswordHash) {
+          const { salt, hash } = hashPassword(buildOwnerPassword());
+          nextPasswordHash = `${salt}:${hash}`;
+        }
+
+        await query(
+          `
+            UPDATE users
+            SET role = 'admin',
+                name = ?,
+                phone = NULL,
+                password_hash = ?,
+                status = 'active',
+                updated_at = NOW()
+            WHERE id = ?
+          `,
+          [name, nextPasswordHash, existing.id],
+        );
+        return getUserById(existing.id);
+      }
+
+      return createAdminRecord(
+        {
+          name,
+          email,
+          password: buildOwnerPassword(),
+        },
+        'active',
+      );
+    },
+    () => {
+      const existing = listUsersLocal().find((entry) => normalizeEmail(entry.email) === email);
+      if (!existing) {
+        return createAdminLocal(
+          {
+            name,
+            email,
+            password: buildOwnerPassword(),
+          },
+          'active',
+        );
+      }
+
+      return updateUserByAdminLocal(existing.id, {
+        role: 'admin',
+        name,
+        email,
+        password: buildOwnerPassword(),
+        status: 'active',
+      });
+    },
+  );
 }
 
 export async function updateUserByAdmin(userId, patch) {

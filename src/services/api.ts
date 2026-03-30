@@ -136,6 +136,29 @@ export type AdminConsoleResponse = {
   currentUser: AuthUser;
 };
 
+export type OwnerStatusResponse = {
+  ownerModuleEnabled: boolean;
+  environment: string;
+  ownerEmail: string | null;
+  emailTransportConfigured: boolean;
+  emailConfig: {
+    configured: boolean;
+    service: string | null;
+    host: string | null;
+    user: string | null;
+    from: string;
+    redirectMode: string;
+    redirectTo: string | null;
+    retries: number;
+    timeouts: {
+      connectionTimeout: number;
+      greetingTimeout: number;
+      socketTimeout: number;
+      sendTimeout: number;
+    };
+  };
+};
+
 export type CropRecommendationPayload = {
   soilType: string;
   season: string;
@@ -610,6 +633,28 @@ export const api = {
     request<OtpChallengeResponse>('/auth/admin/register', { method: 'POST', body: JSON.stringify(payload), auth: false }),
   adminLogin: (payload: AdminLoginPayload) =>
     request<OtpChallengeResponse>('/auth/admin/login', { method: 'POST', body: JSON.stringify(payload), auth: false }),
+  ownerSession: (ownerSecret: string) =>
+    request<AuthSessionResponse>('/owner/session', {
+      method: 'POST',
+      body: JSON.stringify({ ownerSecret }),
+      auth: false,
+    }),
+  ownerStatus: (ownerSecret: string) =>
+    request<OwnerStatusResponse>(`/owner/status?ownerSecret=${encodeURIComponent(ownerSecret)}`, { auth: false }),
+  ownerPendingAdmins: (ownerSecret: string) =>
+    request<{ pendingAdmins: AuthUser[] }>(`/owner/admins/pending?ownerSecret=${encodeURIComponent(ownerSecret)}`, { auth: false }),
+  ownerApproveAdmin: (ownerSecret: string, userId: string) =>
+    request<{ message: string; user: AuthUser }>(`/owner/admins/${encodeURIComponent(userId)}/approve`, {
+      method: 'POST',
+      body: JSON.stringify({ ownerSecret }),
+      auth: false,
+    }),
+  ownerDenyAdmin: (ownerSecret: string, userId: string) =>
+    request<{ message: string; user: AuthUser }>(`/owner/admins/${encodeURIComponent(userId)}/deny`, {
+      method: 'POST',
+      body: JSON.stringify({ ownerSecret }),
+      auth: false,
+    }),
   verifyAdminOtp: (payload: { otpSessionToken: string; otp: string }) =>
     request<AuthSessionResponse>('/otp/admin/verify', { method: 'POST', body: JSON.stringify(payload), auth: false }),
   resendAdminOtp: (payload: { otpSessionToken: string }) =>

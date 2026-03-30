@@ -26,6 +26,7 @@ import { marketplaceRouter } from './modules/marketplace/marketplace.routes.js';
 import { communityRouter } from './modules/community/community.routes.js';
 import { iotRouter } from './modules/iot/iot.routes.js';
 import { transparencyRouter } from './modules/transparency/transparency.routes.js';
+import { ownerRouter } from './modules/owner/owner.routes.js';
 import { isAppError } from './lib/errors.js';
 import { getMetricsSnapshot, observeHttpRequest } from './lib/metrics.js';
 import { getDatabaseHealth } from './db/state.js';
@@ -120,6 +121,7 @@ app.get('/api/v1/health', (_req, res) => {
   res.json(buildHealthPayload());
 });
 
+app.use('/api/v1/owner', ownerRouter);
 app.use('/api/v1', attachRequestAuth);
 app.use('/api/v1/auth', authLimiter);
 app.use('/api/v1/otp', otpLimiter);
