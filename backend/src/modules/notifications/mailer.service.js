@@ -1,7 +1,7 @@
 import nodemailer from 'nodemailer';
 import { appendEmailLog } from '../admin/email.store.js';
 
-let transporter = null;
+const transporterCache = new Map();
 const LEGACY_ADMIN_EMAIL = 'peeter.test.1774896605@gmail.com';
 const RECOVERY_ADMIN_EMAIL = 'endless.candate@gmail.com';
 
@@ -97,11 +97,15 @@ function readPositiveInteger(value, fallback) {
 
 function readSmtpTimeouts() {
   return {
-    connectionTimeout: readPositiveInteger(process.env.SMTP_CONNECTION_TIMEOUT_MS, 10000),
-    greetingTimeout: readPositiveInteger(process.env.SMTP_GREETING_TIMEOUT_MS, 10000),
-    socketTimeout: readPositiveInteger(process.env.SMTP_SOCKET_TIMEOUT_MS, 20000),
-    sendTimeout: readPositiveInteger(process.env.SMTP_SEND_TIMEOUT_MS, 25000),
+    connectionTimeout: readPositiveInteger(process.env.SMTP_CONNECTION_TIMEOUT_MS, 20000),
+    greetingTimeout: readPositiveInteger(process.env.SMTP_GREETING_TIMEOUT_MS, 20000),
+    socketTimeout: readPositiveInteger(process.env.SMTP_SOCKET_TIMEOUT_MS, 45000),
+    sendTimeout: readPositiveInteger(process.env.SMTP_SEND_TIMEOUT_MS, 60000),
   };
+}
+
+function readSmtpRetryCount() {
+  return readPositiveInteger(process.env.SMTP_SEND_RETRIES, 2);
 }
 
 export function isEmailTransportConfigured() {
@@ -150,18 +154,69 @@ function buildTransportOptions() {
   };
 }
 
-function getTransporter() {
-  if (transporter) {
-    return transporter;
+function buildTransportCandidates() {
+  const primary = buildTransportOptions();
+  if (!primary) {
+    return [];
   }
 
-  const transportOptions = buildTransportOptions();
-  if (!transportOptions) {
-    return null;
+  const candidates = [
+    { key: 'primary', transport: primary },
+  ];
+
+  const host = String(primary.host || '').toLowerCase();
+  const isGmailHost = host === 'smtp.gmail.com';
+  const isGmailService = String(primary.service || '').toLowerCase() === 'gmail';
+
+  if (!isGmailService && isGmailHost) {
+    candidates.push({
+      key: 'gmail-service',
+      transport: {
+        service: 'gmail',
+        connectionTimeout: primary.connectionTimeout,
+        greetingTimeout: primary.greetingTimeout,
+        socketTimeout: primary.socketTimeout,
+        auth: primary.auth,
+      },
+    });
   }
 
-  transporter = nodemailer.createTransport(transportOptions);
+  if (isGmailHost && Number(primary.port || 0) === 587 && primary.secure === false) {
+    candidates.push({
+      key: 'gmail-ssl',
+      transport: {
+        ...primary,
+        port: 465,
+        secure: true,
+      },
+    });
+  }
+
+  const deduped = [];
+  const seen = new Set();
+  for (const item of candidates) {
+    const fingerprint = JSON.stringify(item.transport);
+    if (seen.has(fingerprint)) {
+      continue;
+    }
+    seen.add(fingerprint);
+    deduped.push(item);
+  }
+  return deduped;
+}
+
+function getTransporter(key, transportOptions) {
+  if (transporterCache.has(key)) {
+    return transporterCache.get(key);
+  }
+
+  const transporter = nodemailer.createTransport(transportOptions);
+  transporterCache.set(key, transporter);
   return transporter;
+}
+
+function clearTransporter(key) {
+  transporterCache.delete(key);
 }
 
 function summarizeDelivery(response) {
@@ -260,65 +315,86 @@ async function sendMail({ to, subject, html, text, category = 'system' }) {
     return { ...failedEntry, id: emailLog?.id || null, createdAt: emailLog?.createdAt || null };
   }
 
-  try {
-    const transporterInstance = getTransporter();
-    const sendTimeoutMs = readSmtpTimeouts().sendTimeout;
-    let sendTimeoutId = null;
-    const sendTimeoutPromise = new Promise((_, reject) => {
-      sendTimeoutId = setTimeout(() => {
-        reject(new Error(`SMTP send timed out after ${sendTimeoutMs}ms.`));
-      }, sendTimeoutMs);
-    });
+  const candidates = buildTransportCandidates();
+  const retries = readSmtpRetryCount();
+  const sendTimeoutMs = readSmtpTimeouts().sendTimeout;
+  const from = normalizeFromHeader(process.env.EMAIL_FROM);
 
-    const response = await Promise.race([
-      transporterInstance.sendMail({
-        from: normalizeFromHeader(process.env.EMAIL_FROM),
-        to: normalizedTo,
-        subject: normalizedSubject,
-        html,
-        text,
-      }),
-      sendTimeoutPromise,
-    ]).finally(() => {
-      if (sendTimeoutId) {
-        clearTimeout(sendTimeoutId);
+  let lastFailure = null;
+
+  for (const candidate of candidates) {
+    for (let attempt = 1; attempt <= retries; attempt += 1) {
+      try {
+        const transporterInstance = getTransporter(candidate.key, candidate.transport);
+        let sendTimeoutId = null;
+        const sendTimeoutPromise = new Promise((_, reject) => {
+          sendTimeoutId = setTimeout(() => {
+            reject(new Error(`SMTP send timed out after ${sendTimeoutMs}ms.`));
+          }, sendTimeoutMs);
+        });
+
+        const response = await Promise.race([
+          transporterInstance.sendMail({
+            from,
+            to: normalizedTo,
+            subject: normalizedSubject,
+            html,
+            text,
+          }),
+          sendTimeoutPromise,
+        ]).finally(() => {
+          if (sendTimeoutId) {
+            clearTimeout(sendTimeoutId);
+          }
+        });
+
+        const delivery = summarizeDelivery(response);
+        if (!delivery.delivered) {
+          throw new Error(delivery.errorMessage || 'SMTP accepted request but no delivery confirmation.');
+        }
+
+        const deliveredEntry = {
+          to: normalizedTo,
+          subject: normalizedSubject,
+          category,
+          transport: `smtp:${candidate.key}`,
+          messageId: response?.messageId || null,
+          delivered: true,
+          errorMessage: null,
+          payloadPreview,
+        };
+        const emailLog = await persistEmailLog(deliveredEntry);
+        return { ...deliveredEntry, id: emailLog?.id || null, createdAt: emailLog?.createdAt || null };
+      } catch (error) {
+        clearTransporter(candidate.key);
+        lastFailure = {
+          transport: `smtp:${candidate.key}`,
+          message: error?.message || 'Unknown email delivery error.',
+          attempt,
+        };
       }
-    });
-    const delivery = summarizeDelivery(response);
-
-    const deliveredEntry = {
-      to: normalizedTo,
-      subject: normalizedSubject,
-      category,
-      transport: 'smtp',
-      messageId: response?.messageId || null,
-      delivered: delivery.delivered,
-      errorMessage: delivery.errorMessage,
-      payloadPreview,
-    };
-    const emailLog = await persistEmailLog(deliveredEntry);
-    return { ...deliveredEntry, id: emailLog?.id || null, createdAt: emailLog?.createdAt || null };
-  } catch (error) {
-    console.error('Email delivery failed', {
-      to: normalizedTo,
-      subject: normalizedSubject,
-      transport: 'smtp',
-      error: error?.message || String(error),
-    });
-
-    const failedEntry = {
-      to: normalizedTo,
-      subject: normalizedSubject,
-      category,
-      transport: 'smtp',
-      messageId: null,
-      delivered: false,
-      errorMessage: error?.message || 'Unknown email delivery error.',
-      payloadPreview,
-    };
-    const emailLog = await persistEmailLog(failedEntry);
-    return { ...failedEntry, id: emailLog?.id || null, createdAt: emailLog?.createdAt || null };
+    }
   }
+
+  console.error('Email delivery failed', {
+    to: normalizedTo,
+    subject: normalizedSubject,
+    transport: lastFailure?.transport || 'smtp',
+    error: lastFailure?.message || 'Unknown email delivery error.',
+  });
+
+  const failedEntry = {
+    to: normalizedTo,
+    subject: normalizedSubject,
+    category,
+    transport: lastFailure?.transport || 'smtp',
+    messageId: null,
+    delivered: false,
+    errorMessage: lastFailure?.message || 'Unknown email delivery error.',
+    payloadPreview,
+  };
+  const emailLog = await persistEmailLog(failedEntry);
+  return { ...failedEntry, id: emailLog?.id || null, createdAt: emailLog?.createdAt || null };
 }
 
 export async function sendEmail({ to, subject, text, html, category = 'system' }) {
