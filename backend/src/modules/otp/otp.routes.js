@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { getUserById, getUserRecordById, touchLastLogin } from '../auth/auth.store.js';
 import { issueAccessToken, issueActionProofToken, issueOtpChallengeToken, verifyToken } from '../auth/token.service.js';
 import { activateAdmin } from '../auth/auth.store.js';
-import { createOtpChallenge, verifyOtpChallenge } from './otp.store.js';
+import { createOtpChallenge, createOtpTokenHash, verifyOtpChallenge } from './otp.store.js';
 import { addAlert } from '../alerts/alerts.store.js';
 import { sendAccountChangeAlert, sendOTPEmail, sendSystemEmail } from '../notifications/mailer.service.js';
 import { requireAuth, requireAdmin } from '../auth/auth.middleware.js';
@@ -38,18 +38,32 @@ function readChallengeToken(inputToken) {
   return payload;
 }
 
+function maskEmail(email) {
+  const value = String(email || '').trim().toLowerCase();
+  const [localPart = '', domain = ''] = value.split('@');
+  if (!localPart || !domain) {
+    return '';
+  }
+  if (localPart.length <= 2) {
+    return `${localPart[0] || '*'}***@${domain}`;
+  }
+  return `${localPart.slice(0, 2)}***${localPart.slice(-1)}@${domain}`;
+}
+
 function buildOtpResponse(otpSessionToken, successMessage, failureMessage, delivery) {
+  const recipient = String(delivery?.to || '').trim();
   return {
     message: delivery.delivered ? successMessage : failureMessage,
     otpSessionToken,
     delivered: delivery.delivered,
     deliveryError: delivery.errorMessage || null,
+    recipientEmail: recipient ? maskEmail(recipient) : null,
   };
 }
 
 router.post('/admin/verify', validateRequest({ body: otpVerifySchema }), async (req, res) => {
   const challenge = readChallengeToken(req.body?.otpSessionToken);
-  await verifyOtpChallenge(challenge.sub, challenge.purpose, req.body?.otp);
+  await verifyOtpChallenge(challenge.sub, challenge.purpose, req.body?.otp, challenge);
 
   if (challenge.purpose === 'admin_register') {
     await activateAdmin(challenge.sub);
@@ -103,11 +117,12 @@ router.post('/admin/resend', validateRequest({ body: otpResendSchema }), async (
   }
 
   const otp = await createOtpChallenge(user.id, challenge.purpose);
+  const otpHash = createOtpTokenHash(user.id, challenge.purpose, otp);
   const delivery = await sendOTPEmail(user.email, otp);
 
   res.json(
     buildOtpResponse(
-      issueOtpChallengeToken(user.id, challenge.purpose),
+      issueOtpChallengeToken(user.id, challenge.purpose, { otpHash }),
       'OTP resent successfully. Check your email inbox.',
       'OTP was regenerated, but the email could not be delivered. Check SMTP settings and try again.',
       delivery,
@@ -123,11 +138,12 @@ router.post('/admin/request', requireAuth, requireAdmin, validateRequest({ body:
   }
 
   const otp = await createOtpChallenge(user.id, purpose);
+  const otpHash = createOtpTokenHash(user.id, purpose, otp);
   const delivery = await sendOTPEmail(user.email, otp);
 
   res.json(
     buildOtpResponse(
-      issueOtpChallengeToken(user.id, purpose),
+      issueOtpChallengeToken(user.id, purpose, { otpHash }),
       'OTP sent for sensitive action verification. Check your email inbox.',
       'Sensitive-action OTP was created, but the email could not be delivered. Check SMTP settings and retry.',
       delivery,
@@ -141,7 +157,7 @@ router.post('/admin/verify-action', requireAuth, requireAdmin, validateRequest({
     throw new AppError(403, 'OTP challenge does not belong to this admin.');
   }
 
-  await verifyOtpChallenge(challenge.sub, challenge.purpose, req.body?.otp);
+  await verifyOtpChallenge(challenge.sub, challenge.purpose, req.body?.otp, challenge);
   res.json({
     otpProofToken: issueActionProofToken(req.auth.user.id, challenge.purpose),
   });

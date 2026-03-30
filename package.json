@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "start": "node src/server.js",
-    "dev": "vite",
+    "dev": "npm run dev:fullstack",
     "dev:frontend": "vite",
     "dev:backend": "npm --prefix backend run dev",
     "dev:fullstack": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",

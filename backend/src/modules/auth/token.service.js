@@ -15,13 +15,19 @@ export function issueAccessToken(user) {
   );
 }
 
-export function issueOtpChallengeToken(userId, purpose) {
+export function issueOtpChallengeToken(userId, purpose, metadata = {}) {
+  const payload = {
+    sub: userId,
+    type: 'otp_challenge',
+    purpose,
+  };
+
+  if (typeof metadata.otpHash === 'string' && metadata.otpHash.trim()) {
+    payload.otpHash = metadata.otpHash.trim();
+  }
+
   return jwt.sign(
-    {
-      sub: userId,
-      type: 'otp_challenge',
-      purpose,
-    },
+    payload,
     JWT_SECRET,
     { expiresIn: '10m' },
   );

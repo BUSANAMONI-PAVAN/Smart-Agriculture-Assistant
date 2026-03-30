@@ -81,6 +81,7 @@ export type OtpChallengeResponse = {
   otpSessionToken: string;
   delivered: boolean;
   deliveryError: string | null;
+  recipientEmail?: string | null;
 };
 
 export type AuditLogEntry = {
@@ -529,6 +530,28 @@ type ApiRequestInit = RequestInit & {
   auth?: boolean;
 };
 
+function resolveProxyFailureMessage(response: Response, contentType: string, responseText: string) {
+  if (response.status < 500) {
+    return null;
+  }
+
+  const raw = String(responseText || '').toLowerCase();
+  const looksLikeProxyFailure = !contentType.includes('application/json')
+    && (
+      raw.includes('proxy')
+      || raw.includes('econnrefused')
+      || raw.includes('connect etimedout')
+      || raw.includes('socket hang up')
+      || raw.trim().length === 0
+    );
+
+  if (!looksLikeProxyFailure) {
+    return null;
+  }
+
+  return 'Backend API is not reachable. Run `npm run dev:fullstack` and try again.';
+}
+
 async function request<T>(path: string, init?: ApiRequestInit): Promise<T> {
   const requiresAuth = init?.auth !== false;
   const token = localStorage.getItem('accessToken');
@@ -549,14 +572,27 @@ async function request<T>(path: string, init?: ApiRequestInit): Promise<T> {
 
   if (!response.ok) {
     let message = `API error: ${response.status}`;
+    const contentType = String(response.headers.get('content-type') || '').toLowerCase();
+    let responseText = '';
+
     try {
-      const errorPayload = (await response.json()) as { message?: string };
-      if (errorPayload?.message) {
-        message = errorPayload.message;
+      if (contentType.includes('application/json')) {
+        const errorPayload = (await response.json()) as { message?: string };
+        if (errorPayload?.message) {
+          message = errorPayload.message;
+        }
+      } else {
+        responseText = await response.text();
       }
     } catch {
       // Keep default status message when the response body is empty.
     }
+
+    const proxyFailureMessage = resolveProxyFailureMessage(response, contentType, responseText);
+    if (proxyFailureMessage) {
+      message = proxyFailureMessage;
+    }
+
     throw new Error(message);
   }
 
@@ -658,7 +694,7 @@ export const api = {
   askAssistant: (message: string) =>
     request<AssistantQueryResponse>('/assistant/query', { method: 'POST', body: JSON.stringify({ message }) }),
   getAssistantHistory: () => request<{ history: Array<{ id: string; question: string; answer: string; confidence: number; createdAt: string }> }>('/assistant/history'),
-  askAi: (payload: { query: string; lat?: number; lng?: number; crop?: string }) =>
+  askAi: (payload: { query: string; lat?: number; lng?: number; crop?: string; emitAlert?: boolean }) =>
     request<AiChatResponse>('/ai/ask', { method: 'POST', body: JSON.stringify(payload) }),
   getAiHistory: (limit = 40) => request<{ history: AiChatHistoryItem[] }>(`/ai/history?limit=${Math.min(Math.max(limit, 1), 200)}`),
   getRiskScore: (crop: string, lat?: number, lng?: number) => {

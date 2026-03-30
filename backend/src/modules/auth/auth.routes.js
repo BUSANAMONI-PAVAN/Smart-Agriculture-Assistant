@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import { createAdmin, getUserById, touchLastLogin, updateAdminProfile, verifyAdminCredentials } from './auth.store.js';
 import { issueAccessToken, issueOtpChallengeToken, verifyToken } from './token.service.js';
-import { createOtpChallenge } from '../otp/otp.store.js';
+import { createOtpChallenge, createOtpTokenHash } from '../otp/otp.store.js';
 import { sendAccountChangeAlert, sendOTPEmail } from '../notifications/mailer.service.js';
 import { addAlert } from '../alerts/alerts.store.js';
 import { requireAuth, requireAdmin } from './auth.middleware.js';
@@ -63,12 +63,26 @@ function readActionProof(req, expectedPurpose) {
   return payload;
 }
 
+function maskEmail(email) {
+  const value = String(email || '').trim().toLowerCase();
+  const [localPart = '', domain = ''] = value.split('@');
+  if (!localPart || !domain) {
+    return '';
+  }
+  if (localPart.length <= 2) {
+    return `${localPart[0] || '*'}***@${domain}`;
+  }
+  return `${localPart.slice(0, 2)}***${localPart.slice(-1)}@${domain}`;
+}
+
 function buildOtpResponse(otpSessionToken, successMessage, failureMessage, delivery) {
+  const recipient = String(delivery?.to || '').trim();
   return {
     message: delivery.delivered ? successMessage : failureMessage,
     otpSessionToken,
     delivered: delivery.delivered,
     deliveryError: delivery.errorMessage || null,
+    recipientEmail: recipient ? maskEmail(recipient) : null,
   };
 }
 
@@ -116,11 +130,12 @@ router.post('/farmer/login', validateRequest({ body: farmerLoginSchema }), async
 router.post('/admin/register', validateRequest({ body: adminRegisterSchema }), async (req, res) => {
   const user = await createAdmin(req.body || {});
   const otp = await createOtpChallenge(user.id, 'admin_register');
+  const otpHash = createOtpTokenHash(user.id, 'admin_register', otp);
   const delivery = await sendOTPEmail(user.email, otp);
 
   res.status(202).json(
     buildOtpResponse(
-      issueOtpChallengeToken(user.id, 'admin_register'),
+      issueOtpChallengeToken(user.id, 'admin_register', { otpHash }),
       'OTP sent to admin email for signup verification.',
       'Admin account created, but the OTP email could not be delivered. Check SMTP settings and use Resend OTP.',
       delivery,
@@ -131,11 +146,12 @@ router.post('/admin/register', validateRequest({ body: adminRegisterSchema }), a
 router.post('/admin/login', validateRequest({ body: adminLoginSchema }), async (req, res) => {
   const user = await verifyAdminCredentials(req.body?.email, req.body?.password);
   const otp = await createOtpChallenge(user.id, 'admin_login');
+  const otpHash = createOtpTokenHash(user.id, 'admin_login', otp);
   const delivery = await sendOTPEmail(user.email, otp);
 
   res.status(202).json(
     buildOtpResponse(
-      issueOtpChallengeToken(user.id, 'admin_login'),
+      issueOtpChallengeToken(user.id, 'admin_login', { otpHash }),
       'OTP sent to admin email for login verification.',
       'OTP email could not be delivered. Check SMTP settings and use Resend OTP.',
       delivery,

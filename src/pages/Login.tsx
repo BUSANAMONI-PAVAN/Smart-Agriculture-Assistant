@@ -58,6 +58,7 @@ export function Login() {
   const [adminForm, setAdminForm] = useState<AdminForm>(INITIAL_ADMIN_FORM);
   const [otp, setOtp] = useState('');
   const [otpSessionToken, setOtpSessionToken] = useState('');
+  const [otpRecipientEmail, setOtpRecipientEmail] = useState('');
   const [otpPurposeLabel, setOtpPurposeLabel] = useState<'login' | 'register'>('login');
   const [notice, setNotice] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -76,6 +77,7 @@ export function Login() {
   const resetOtpState = () => {
     setOtpSessionToken('');
     setOtp('');
+    setOtpRecipientEmail('');
     setNotice('');
   };
 
@@ -141,6 +143,7 @@ export function Login() {
 
       setOtpPurposeLabel(mode);
       setOtpSessionToken(response.otpSessionToken);
+      setOtpRecipientEmail(String(response.recipientEmail || ''));
       setOtp('');
       setNotice(response.message);
     } catch (requestError) {
@@ -179,6 +182,7 @@ export function Login() {
     try {
       const response = await api.resendAdminOtp({ otpSessionToken });
       setOtpSessionToken(response.otpSessionToken);
+      setOtpRecipientEmail(String(response.recipientEmail || otpRecipientEmail));
       if (!response.delivered) {
         setError(response.deliveryError || 'OTP email could not be delivered. Please try again after fixing SMTP.');
         return;
@@ -197,7 +201,9 @@ export function Login() {
       ? 'Create account'
       : 'Login';
   const subtitle = inOtpStep
-    ? `Enter the 6-digit code sent to the admin mailbox to finish ${otpPurposeLabel}.`
+    ? otpRecipientEmail
+      ? `Enter the 6-digit code sent to ${otpRecipientEmail} to finish ${otpPurposeLabel}.`
+      : `Enter the 6-digit code sent to your admin mailbox to finish ${otpPurposeLabel}.`
     : isFarmer
       ? mode === 'register'
         ? 'Farmer signup with name and phone number.'
