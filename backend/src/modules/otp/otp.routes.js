@@ -124,7 +124,7 @@ router.post('/admin/resend', validateRequest({ body: otpResendSchema }), async (
     buildOtpResponse(
       issueOtpChallengeToken(user.id, challenge.purpose, { otpHash }),
       'OTP resent successfully. Check your email inbox.',
-      'OTP was regenerated, but the email could not be delivered. Check SMTP settings and try again.',
+      'OTP regenerated, but email delivery failed. Please try Resend OTP again.',
       delivery,
     ),
   );
@@ -145,7 +145,7 @@ router.post('/admin/request', requireAuth, requireAdmin, validateRequest({ body:
     buildOtpResponse(
       issueOtpChallengeToken(user.id, purpose, { otpHash }),
       'OTP sent for sensitive action verification. Check your email inbox.',
-      'Sensitive-action OTP was created, but the email could not be delivered. Check SMTP settings and retry.',
+      'Sensitive-action OTP created, but email delivery failed. Please retry.',
       delivery,
     ),
   );

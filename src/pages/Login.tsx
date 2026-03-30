@@ -143,7 +143,7 @@ export function Login() {
 
       if (!response.delivered) {
         const reason = response.deliveryError || 'OTP email delivery is delayed.';
-        setError(`${reason} If OTP arrives, enter it below. You can also use Resend OTP.`);
+        setError(`${reason} If OTP arrives, enter it below, or tap Resend OTP.`);
         return;
       }
     } catch (requestError) {
@@ -186,7 +186,7 @@ export function Login() {
       setNotice(response.message);
       if (!response.delivered) {
         const reason = response.deliveryError || 'OTP email delivery is delayed.';
-        setError(`${reason} If OTP arrives, enter it below and verify.`);
+        setError(`${reason} If OTP arrives, enter it below and tap Verify OTP.`);
         return;
       }
     } catch (requestError) {

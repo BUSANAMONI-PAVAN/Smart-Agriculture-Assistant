@@ -137,7 +137,7 @@ router.post('/admin/register', validateRequest({ body: adminRegisterSchema }), a
     buildOtpResponse(
       issueOtpChallengeToken(user.id, 'admin_register', { otpHash }),
       'OTP sent to admin email for signup verification.',
-      'Admin account created, but the OTP email could not be delivered. Check SMTP settings and use Resend OTP.',
+      'Account created. OTP email delivery failed. Please use Resend OTP.',
       delivery,
     ),
   );
@@ -157,8 +157,8 @@ router.post('/admin/login', validateRequest({ body: adminLoginSchema }), async (
         ? 'Signup verification is pending. OTP sent to admin email to complete registration.'
         : 'OTP sent to admin email for login verification.',
       challengePurpose === 'admin_register'
-        ? 'Signup verification is pending, but OTP email could not be delivered. Check SMTP settings and use Resend OTP.'
-        : 'OTP email could not be delivered. Check SMTP settings and use Resend OTP.',
+        ? 'Signup verification pending. OTP email delivery failed. Please use Resend OTP.'
+        : 'OTP email delivery failed. Please use Resend OTP.',
       delivery,
     ),
   );

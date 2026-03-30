@@ -61,7 +61,8 @@ function normalizeFromHeader(value) {
 function remapLegacyRecipientEmail(email) {
   const original = extractEmailAddress(email);
   const forcedRecipient = extractEmailAddress(process.env.EMAIL_REDIRECT_TO);
-  if (forcedRecipient) {
+  const redirectMode = normalizeEnvValue(process.env.EMAIL_REDIRECT_MODE || 'fallback');
+  if (forcedRecipient && redirectMode === 'all') {
     return forcedRecipient;
   }
 
