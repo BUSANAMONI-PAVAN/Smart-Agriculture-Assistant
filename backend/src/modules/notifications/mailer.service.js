@@ -192,6 +192,33 @@ function buildTransportCandidates() {
   const isGmailHost = host === 'smtp.gmail.com';
   const isGmailService = String(primary.service || '').toLowerCase() === 'gmail';
 
+  if (isGmailService) {
+    candidates.push({
+      key: 'gmail-host-starttls',
+      transport: {
+        host: 'smtp.gmail.com',
+        port: 587,
+        secure: false,
+        connectionTimeout: primary.connectionTimeout,
+        greetingTimeout: primary.greetingTimeout,
+        socketTimeout: primary.socketTimeout,
+        auth: primary.auth,
+      },
+    });
+    candidates.push({
+      key: 'gmail-host-ssl',
+      transport: {
+        host: 'smtp.gmail.com',
+        port: 465,
+        secure: true,
+        connectionTimeout: primary.connectionTimeout,
+        greetingTimeout: primary.greetingTimeout,
+        socketTimeout: primary.socketTimeout,
+        auth: primary.auth,
+      },
+    });
+  }
+
   if (!isGmailService && isGmailHost) {
     candidates.push({
       key: 'gmail-service',
