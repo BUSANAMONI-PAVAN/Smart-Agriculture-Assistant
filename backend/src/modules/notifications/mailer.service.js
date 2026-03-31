@@ -122,6 +122,10 @@ function readSmtpRetryCount() {
   return readPositiveInteger(process.env.SMTP_SEND_RETRIES, 2);
 }
 
+function readOtpResponseTimeoutMs() {
+  return readPositiveInteger(process.env.OTP_EMAIL_RESPONSE_TIMEOUT_MS, 8000);
+}
+
 export function isEmailTransportConfigured() {
   const service = readSmtpService();
   const host = readSmtpHost();
@@ -148,6 +152,7 @@ export function getEmailDeliveryConfigSummary() {
     redirectTo: redirectTo || null,
     retries: readSmtpRetryCount(),
     timeouts: readSmtpTimeouts(),
+    otpResponseTimeout: readOtpResponseTimeoutMs(),
   };
 }
 
@@ -656,6 +661,48 @@ export async function sendOTPEmail(email, otp) {
     text: message,
     html,
   });
+}
+
+export async function sendOTPEmailWithDeadline(email, otp, options = {}) {
+  const timeoutMs = readPositiveInteger(options.timeoutMs, readOtpResponseTimeoutMs());
+  if (!(timeoutMs > 0)) {
+    return sendOTPEmail(email, otp);
+  }
+
+  const sendPromise = sendOTPEmail(email, otp);
+  const timeoutMarker = Symbol('otp-email-timeout');
+  let timeoutId = null;
+
+  const timeoutPromise = new Promise((resolve) => {
+    timeoutId = setTimeout(() => {
+      resolve(timeoutMarker);
+    }, timeoutMs);
+  });
+
+  const raced = await Promise.race([sendPromise, timeoutPromise]);
+  if (timeoutId) {
+    clearTimeout(timeoutId);
+  }
+
+  if (raced !== timeoutMarker) {
+    return raced;
+  }
+
+  // Avoid unhandled rejection noise if delivery fails after the client timeout response.
+  sendPromise.catch(() => null);
+
+  return {
+    id: null,
+    createdAt: null,
+    to: resolveRecipientForDelivery(email),
+    subject: 'Smart Agriculture OTP verification',
+    category: 'otp',
+    transport: 'smtp:pending',
+    messageId: null,
+    delivered: false,
+    errorMessage: `OTP generated, but email delivery timed out after ${timeoutMs}ms. Please use Resend OTP.`,
+    payloadPreview: 'OTP verification email generated for secure admin verification.',
+  };
 }
 
 export async function sendAccountChangeAlert(email, action) {

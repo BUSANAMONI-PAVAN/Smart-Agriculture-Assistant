@@ -5,7 +5,7 @@ import { issueAccessToken, issueActionProofToken, issueOtpChallengeToken, verify
 import { activateAdmin } from '../auth/auth.store.js';
 import { createOtpChallenge, createOtpTokenHash, verifyOtpChallenge } from './otp.store.js';
 import { addAlert } from '../alerts/alerts.store.js';
-import { sendAccountChangeAlert, sendOTPEmail, sendSystemEmail } from '../notifications/mailer.service.js';
+import { sendAccountChangeAlert, sendOTPEmailWithDeadline, sendSystemEmail } from '../notifications/mailer.service.js';
 import { requireAuth, requireAdmin } from '../auth/auth.middleware.js';
 import { AppError } from '../../lib/errors.js';
 import { listFeatureFlags } from '../admin/feature.store.js';
@@ -118,7 +118,7 @@ router.post('/admin/resend', validateRequest({ body: otpResendSchema }), async (
 
   const otp = await createOtpChallenge(user.id, challenge.purpose);
   const otpHash = createOtpTokenHash(user.id, challenge.purpose, otp);
-  const delivery = await sendOTPEmail(user.email, otp);
+  const delivery = await sendOTPEmailWithDeadline(user.email, otp);
 
   res.json(
     buildOtpResponse(
@@ -139,7 +139,7 @@ router.post('/admin/request', requireAuth, requireAdmin, validateRequest({ body:
 
   const otp = await createOtpChallenge(user.id, purpose);
   const otpHash = createOtpTokenHash(user.id, purpose, otp);
-  const delivery = await sendOTPEmail(user.email, otp);
+  const delivery = await sendOTPEmailWithDeadline(user.email, otp);
 
   res.json(
     buildOtpResponse(

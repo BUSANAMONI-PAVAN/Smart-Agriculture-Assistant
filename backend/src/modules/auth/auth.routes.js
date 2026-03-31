@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { createAdmin, getUserById, touchLastLogin, updateAdminProfile, verifyAdminCredentials } from './auth.store.js';
 import { issueAccessToken, issueOtpChallengeToken, verifyToken } from './token.service.js';
 import { createOtpChallenge, createOtpTokenHash } from '../otp/otp.store.js';
-import { sendAccountChangeAlert, sendOTPEmail } from '../notifications/mailer.service.js';
+import { sendAccountChangeAlert, sendOTPEmailWithDeadline, sendSystemEmail } from '../notifications/mailer.service.js';
 import { addAlert } from '../alerts/alerts.store.js';
 import { requireAuth, requireAdmin } from './auth.middleware.js';
 import { listFeatureFlags } from '../admin/feature.store.js';
@@ -87,6 +87,51 @@ function buildOtpResponse(otpSessionToken, successMessage, failureMessage, deliv
   };
 }
 
+function ownerNotificationRecipient() {
+  return String(process.env.OWNER_EMAIL || process.env.SMTP_USER || '').trim().toLowerCase();
+}
+
+function formatOwnerNotificationTimes(now = new Date()) {
+  return {
+    india: new Intl.DateTimeFormat('en-IN', {
+      dateStyle: 'full',
+      timeStyle: 'medium',
+      timeZone: 'Asia/Kolkata',
+    }).format(now),
+    utc: now.toISOString(),
+  };
+}
+
+function buildPendingAdminMessage(user, delivery) {
+  const actionTime = formatOwnerNotificationTimes(new Date());
+  const deliveryStatus = delivery?.delivered ? 'Delivered' : `Failed (${delivery?.errorMessage || 'Unknown error'})`;
+  return [
+    'A new admin signup is waiting for owner review.',
+    `Admin name: ${String(user?.name || 'Unknown')}`,
+    `Admin email: ${String(user?.email || 'Not available')}`,
+    'Admin phone: Not available',
+    `Requested at (India): ${actionTime.india}`,
+    `Requested at (UTC): ${actionTime.utc}`,
+    `Initial OTP delivery: ${deliveryStatus}`,
+    'Open Owner Console -> Pending admin approvals to approve or deny this request.',
+  ].join('\n');
+}
+
+async function notifyOwnerAboutPendingAdminSignup(user, delivery) {
+  const ownerEmail = ownerNotificationRecipient();
+  if (!ownerEmail) {
+    return null;
+  }
+
+  return sendSystemEmail({
+    email: ownerEmail,
+    subject: `Smart Agriculture pending admin signup: ${user.name}`,
+    title: 'New admin signup pending approval',
+    message: buildPendingAdminMessage(user, delivery),
+    category: 'owner-admin-signup-pending',
+  });
+}
+
 router.post('/farmer/register', validateRequest({ body: farmerRegisterSchema }), async (req, res) => {
   const user = await registerFarmer(req.body || {});
   await updateProfile(user.id, {
@@ -133,7 +178,14 @@ router.post('/admin/register', validateRequest({ body: adminRegisterSchema }), a
   const user = await createAdmin(req.body || {});
   const otp = await createOtpChallenge(user.id, 'admin_register');
   const otpHash = createOtpTokenHash(user.id, 'admin_register', otp);
-  const delivery = await sendOTPEmail(user.email, otp);
+  const delivery = await sendOTPEmailWithDeadline(user.email, otp);
+  void notifyOwnerAboutPendingAdminSignup(user, delivery).catch((error) => {
+    console.error('Owner pending-admin notification failed', {
+      email: ownerNotificationRecipient(),
+      userId: user.id,
+      error: error?.message || String(error),
+    });
+  });
 
   res.status(202).json(
     buildOtpResponse(
@@ -150,7 +202,7 @@ router.post('/admin/login', validateRequest({ body: adminLoginSchema }), async (
   const challengePurpose = user.status === 'pending' ? 'admin_register' : 'admin_login';
   const otp = await createOtpChallenge(user.id, challengePurpose);
   const otpHash = createOtpTokenHash(user.id, challengePurpose, otp);
-  const delivery = await sendOTPEmail(user.email, otp);
+  const delivery = await sendOTPEmailWithDeadline(user.email, otp);
 
   res.status(202).json(
     buildOtpResponse(
