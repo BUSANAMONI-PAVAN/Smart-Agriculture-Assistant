@@ -47,6 +47,39 @@ const updateFeaturesSchema = z.object({
   })).max(120),
 }).strict();
 
+function formatRemovalTime(now = new Date()) {
+  const local = new Intl.DateTimeFormat('en-IN', {
+    dateStyle: 'full',
+    timeStyle: 'medium',
+    timeZone: 'Asia/Kolkata',
+  }).format(now);
+  return {
+    local,
+    iso: now.toISOString(),
+  };
+}
+
+function buildRemovalMessage(targetUser, actorUser, removedAt) {
+  const actorName = String(actorUser?.name || 'System administrator').trim() || 'System administrator';
+  const actorEmail = String(actorUser?.email || '').trim() || 'Not available';
+  const targetName = String(targetUser?.name || 'Unknown user').trim() || 'Unknown user';
+  const targetRole = String(targetUser?.role || 'unknown').trim() || 'unknown';
+  const targetEmail = String(targetUser?.email || '').trim() || 'Not available';
+  const targetPhone = String(targetUser?.phone || '').trim() || 'Not available';
+
+  return [
+    `Your Smart Agriculture account has been removed.`,
+    `Removed account name: ${targetName}`,
+    `Removed account role: ${targetRole}`,
+    `Removed account email: ${targetEmail}`,
+    `Removed account phone: ${targetPhone}`,
+    `Removed by: ${actorName} (${actorEmail})`,
+    `Removal time (India): ${removedAt.local}`,
+    `Removal time (UTC): ${removedAt.iso}`,
+    `If this is unexpected, contact Smart Agriculture support.`,
+  ].join(' ');
+}
+
 function readSystemControlProof(req) {
   const token = req.body?.otpProofToken || req.headers['x-otp-proof'];
   if (!token || typeof token !== 'string') {
@@ -184,15 +217,19 @@ router.patch('/users/:id', validateRequest({ params: idParamSchema, body: update
 router.delete('/users/:id', validateRequest({ params: idParamSchema, body: deleteNotificationSchema }), async (req, res) => {
   readSystemControlProof(req);
   const user = await deleteUserByAdmin(req.params.id, req.auth.user.id);
+  const removedAt = formatRemovalTime(new Date());
   await appendAuditLog({
     actorUserId: req.auth.user.id,
     targetUserId: user.id,
     action: 'admin.user.delete',
-    detail: `Deleted user "${user.name}" (${user.role}).`,
+    detail: `Deleted user "${user.name}" (${user.role}) at ${removedAt.iso}.`,
     payload: {
       role: user.role,
       email: user.email || null,
       phone: user.phone || null,
+      removedByName: req.auth.user.name || null,
+      removedByEmail: req.auth.user.email || null,
+      removedAt: removedAt.iso,
     },
   });
   await addAlert({
@@ -208,11 +245,12 @@ router.delete('/users/:id', validateRequest({ params: idParamSchema, body: delet
   });
 
   if (user.email) {
+    const removalMessage = buildRemovalMessage(user, req.auth.user, removedAt);
     await sendSystemEmail({
       email: user.email,
-      subject: 'Smart Agriculture account removed',
-      title: 'Account removed',
-      message: 'Your account was removed by an administrator. Contact the platform administrator if you need help.',
+      subject: `Smart Agriculture account removed: ${user.name}`,
+      title: 'Account removed notification',
+      message: removalMessage,
       category: 'admin-user-delete',
     });
   }
