@@ -7,7 +7,7 @@ import {
   listUsers,
   updateUserByAdmin,
 } from '../auth/auth.store.js';
-import { issueAccessToken } from '../auth/token.service.js';
+import { issueAccessToken, verifyToken } from '../auth/token.service.js';
 import { listFeatureFlags } from '../admin/feature.store.js';
 import {
   getEmailDeliveryConfigSummary,
@@ -22,6 +22,11 @@ const router = Router();
 
 const ownerSessionSchema = z.object({
   ownerSecret: z.string().trim().min(8).optional(),
+}).strict();
+
+const ownerLoginSchema = z.object({
+  name: z.string().trim().min(1).max(120),
+  password: z.string().trim().min(1).max(120),
 }).strict();
 
 const ownerPendingActionSchema = z.object({
@@ -73,6 +78,14 @@ function ownerName() {
   return String(process.env.OWNER_NAME || 'Owner').trim() || 'Owner';
 }
 
+function ownerLoginName() {
+  return String(process.env.OWNER_LOGIN_NAME || 'peeter').trim().toLowerCase();
+}
+
+function ownerLoginPassword() {
+  return String(process.env.OWNER_LOGIN_PASSWORD || 'peeter');
+}
+
 function compareSecrets(input, expected) {
   const left = Buffer.from(String(input || ''));
   const right = Buffer.from(String(expected || ''));
@@ -91,20 +104,61 @@ function ensureOwnerModuleAvailable() {
   }
 }
 
-function requireOwner(req, _res, next) {
+function readAuthToken(req) {
+  const header = String(req.headers.authorization || '');
+  if (header.startsWith('Bearer ')) {
+    return header.slice(7).trim();
+  }
+  return '';
+}
+
+async function readOwnerUserFromToken(req) {
+  const token = readAuthToken(req);
+  if (!token) {
+    return null;
+  }
+
+  try {
+    const payload = verifyToken(token);
+    if (payload?.type !== 'access' || typeof payload.sub !== 'string') {
+      return null;
+    }
+
+    const user = await getUserById(payload.sub);
+    if (!user || user.role !== 'admin' || user.status !== 'active') {
+      return null;
+    }
+
+    const configuredOwnerEmail = ownerEmail();
+    if (configuredOwnerEmail && String(user.email || '').trim().toLowerCase() !== configuredOwnerEmail) {
+      return null;
+    }
+
+    return user;
+  } catch {
+    return null;
+  }
+}
+
+async function requireOwner(req, _res, next) {
   try {
     ensureOwnerModuleAvailable();
+
     const configuredSecret = ownerConfiguredSecret();
-    if (!configuredSecret) {
-      throw new AppError(503, 'Owner module secret is not configured.');
+    const providedSecret = readOwnerSecret(req);
+    if (configuredSecret && compareSecrets(providedSecret, configuredSecret)) {
+      return next();
     }
-    const provided = readOwnerSecret(req);
-    if (!compareSecrets(provided, configuredSecret)) {
-      throw new AppError(401, 'Owner access denied.');
+
+    const ownerUser = await readOwnerUserFromToken(req);
+    if (ownerUser) {
+      req.owner = { user: ownerUser };
+      return next();
     }
-    return next();
+
+    throw new AppError(401, 'Owner access denied.');
   } catch (error) {
-    return next(error);
+    next(error);
   }
 }
 
@@ -133,6 +187,22 @@ router.get('/status', requireOwner, async (_req, res) => {
     ownerEmail: ownerEmail() || null,
     emailTransportConfigured: isEmailTransportConfigured(),
     emailConfig: getEmailDeliveryConfigSummary(),
+  });
+});
+
+router.post('/login', validateRequest({ body: ownerLoginSchema }), async (req, res) => {
+  ensureOwnerModuleAvailable();
+  const nameMatches = compareSecrets(String(req.body?.name || '').trim().toLowerCase(), ownerLoginName());
+  const passwordMatches = compareSecrets(String(req.body?.password || ''), ownerLoginPassword());
+
+  if (!nameMatches || !passwordMatches) {
+    throw new AppError(401, 'Invalid owner credentials.');
+  }
+
+  const session = await buildOwnerSession();
+  res.json({
+    message: 'Owner login successful.',
+    ...session,
   });
 });
 

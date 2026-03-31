@@ -1,7 +1,7 @@
 import { FormEvent, ReactNode, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, KeyRound, Lock, Mail, Phone, ShieldCheck, Tractor, UserRound } from 'lucide-react';
-import { api, type AuthUser, type OwnerStatusResponse } from '../services/api';
+import { api } from '../services/api';
 import { useAuth } from '../contexts/AuthContext';
 
 type AuthMode = 'login' | 'register';
@@ -53,8 +53,6 @@ export function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { acceptSession, canAccessAdmin, isAuthenticated } = useAuth();
-  const ownerSecret = import.meta.env.DEV ? String(import.meta.env.VITE_OWNER_SECRET || '').trim() : '';
-  const canUseOwnerQuickAccess = Boolean(import.meta.env.DEV && ownerSecret.length >= 8);
   const [role, setRole] = useState<AuthRole>('farmer');
   const [farmerForm, setFarmerForm] = useState<FarmerForm>(INITIAL_FARMER_FORM);
   const [adminForm, setAdminForm] = useState<AdminForm>(INITIAL_ADMIN_FORM);
@@ -65,9 +63,6 @@ export function Login() {
   const [notice, setNotice] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [ownerStatus, setOwnerStatus] = useState<OwnerStatusResponse | null>(null);
-  const [pendingAdmins, setPendingAdmins] = useState<AuthUser[]>([]);
-  const [ownerBusyUserId, setOwnerBusyUserId] = useState('');
 
   const mode: AuthMode = location.pathname === '/register' ? 'register' : 'login';
   const inOtpStep = role === 'admin' && Boolean(otpSessionToken);
@@ -201,62 +196,6 @@ export function Login() {
     }
   };
 
-  const handleOwnerQuickAccess = async () => {
-    if (!canUseOwnerQuickAccess) return;
-    setSubmitting(true);
-    setError('');
-    setNotice('');
-    try {
-      const session = await api.ownerSession(ownerSecret);
-      acceptSession(session);
-      navigate('/admin', { replace: true });
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : 'Owner access failed.');
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const loadOwnerQueue = async () => {
-    if (!canUseOwnerQuickAccess) return;
-    try {
-      const [status, pending] = await Promise.all([
-        api.ownerStatus(ownerSecret),
-        api.ownerPendingAdmins(ownerSecret),
-      ]);
-      setOwnerStatus(status);
-      setPendingAdmins(pending.pendingAdmins || []);
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : 'Unable to load owner queue.');
-    }
-  };
-
-  const handleOwnerDecision = async (userId: string, action: 'approve' | 'deny') => {
-    if (!canUseOwnerQuickAccess) return;
-    setOwnerBusyUserId(userId);
-    setError('');
-    setNotice('');
-    try {
-      if (action === 'approve') {
-        await api.ownerApproveAdmin(ownerSecret, userId);
-        setNotice('Pending admin approved.');
-      } else {
-        await api.ownerDenyAdmin(ownerSecret, userId);
-        setNotice('Pending admin denied.');
-      }
-      await loadOwnerQueue();
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : 'Owner action failed.');
-    } finally {
-      setOwnerBusyUserId('');
-    }
-  };
-
-  useEffect(() => {
-    if (!canUseOwnerQuickAccess) return;
-    void loadOwnerQueue();
-  }, [canUseOwnerQuickAccess]);
-
   const heading = inOtpStep
     ? `Verify ${otpPurposeLabel === 'register' ? 'Signup' : 'Login'}`
     : mode === 'register'
@@ -339,67 +278,6 @@ export function Login() {
               Sign Up
             </button>
           </div>
-
-          {canUseOwnerQuickAccess && (
-            <div className="mt-4 rounded-2xl border border-white/25 bg-white/10 p-3">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <button
-                  type="button"
-                  onClick={() => void handleOwnerQuickAccess()}
-                  disabled={submitting}
-                  className="inline-flex items-center gap-2 rounded-full border border-white/35 bg-white/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.08em] text-white/90 transition hover:bg-white/16 disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  <ShieldCheck size={14} />
-                  Owner Direct Access
-                </button>
-                <button
-                  type="button"
-                  onClick={() => void loadOwnerQueue()}
-                  disabled={submitting}
-                  className="rounded-full border border-white/25 bg-transparent px-3 py-1.5 text-[11px] font-semibold uppercase tracking-[0.08em] text-white/80 transition hover:bg-white/12 disabled:cursor-not-allowed disabled:opacity-70"
-                >
-                  Refresh Queue
-                </button>
-              </div>
-
-              <p className="mt-2 text-xs text-white/76">
-                {ownerStatus?.emailTransportConfigured
-                  ? `SMTP ready • Owner ${ownerStatus.ownerEmail || 'configured'}`
-                  : 'SMTP not ready in backend environment.'}
-              </p>
-
-              {pendingAdmins.length > 0 ? (
-                <div className="mt-3 space-y-2">
-                  {pendingAdmins.map((pendingAdmin) => (
-                    <div key={pendingAdmin.id} className="rounded-xl border border-white/20 bg-[#ffffff12] p-2.5">
-                      <p className="text-sm font-semibold text-white">{pendingAdmin.name}</p>
-                      <p className="text-xs text-white/72">{pendingAdmin.email}</p>
-                      <div className="mt-2 flex gap-2">
-                        <button
-                          type="button"
-                          disabled={ownerBusyUserId === pendingAdmin.id}
-                          onClick={() => void handleOwnerDecision(pendingAdmin.id, 'approve')}
-                          className="rounded-full bg-white px-3 py-1 text-xs font-bold text-[#4b3f84] disabled:cursor-not-allowed disabled:opacity-70"
-                        >
-                          Approve
-                        </button>
-                        <button
-                          type="button"
-                          disabled={ownerBusyUserId === pendingAdmin.id}
-                          onClick={() => void handleOwnerDecision(pendingAdmin.id, 'deny')}
-                          className="rounded-full border border-[#ffc7ca66] bg-[#7f243320] px-3 py-1 text-xs font-bold text-[#ffe8e9] disabled:cursor-not-allowed disabled:opacity-70"
-                        >
-                          Deny
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="mt-2 text-xs text-white/72">No pending admin requests.</p>
-              )}
-            </div>
-          )}
 
           {!inOtpStep && (
             <div className="mt-4 flex flex-wrap justify-center gap-2">
@@ -578,6 +456,15 @@ export function Login() {
               >
                 {switchAction}
               </button>
+              <div className="mt-3 text-xs text-white/70">
+                <button
+                  type="button"
+                  onClick={() => navigate('/owner')}
+                  className="font-semibold uppercase tracking-[0.08em] text-white/84 transition hover:text-white"
+                >
+                  Owner Access
+                </button>
+              </div>
             </div>
           )}
         </div>

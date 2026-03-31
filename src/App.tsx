@@ -21,6 +21,7 @@ import { ProfitEstimator } from './pages/ProfitEstimator';
 import { AdminPanel } from './pages/AdminPanel';
 import { NotificationsDebug } from './pages/NotificationsDebug';
 import { AIAssistant } from './pages/AIAssistant';
+import { OwnerAccess } from './pages/OwnerAccess';
 
 function AppFrame({ children }: { children: ReactNode }) {
   return <div className="app-frame animate-float-in">{children}</div>;
@@ -36,6 +37,7 @@ function AppShell() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Login />} />
+          <Route path="/owner" element={<OwnerAccess />} />
 
           <Route
             path="/"

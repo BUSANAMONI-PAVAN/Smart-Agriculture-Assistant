@@ -159,6 +159,11 @@ export type OwnerStatusResponse = {
   };
 };
 
+export type OwnerLoginPayload = {
+  name: string;
+  password: string;
+};
+
 export type CropRecommendationPayload = {
   soilType: string;
   season: string;
@@ -633,27 +638,25 @@ export const api = {
     request<OtpChallengeResponse>('/auth/admin/register', { method: 'POST', body: JSON.stringify(payload), auth: false }),
   adminLogin: (payload: AdminLoginPayload) =>
     request<OtpChallengeResponse>('/auth/admin/login', { method: 'POST', body: JSON.stringify(payload), auth: false }),
-  ownerSession: (ownerSecret: string) =>
-    request<AuthSessionResponse>('/owner/session', {
+  ownerLogin: (payload: OwnerLoginPayload) =>
+    request<AuthSessionResponse>('/owner/login', {
       method: 'POST',
-      body: JSON.stringify({ ownerSecret }),
+      body: JSON.stringify(payload),
       auth: false,
     }),
-  ownerStatus: (ownerSecret: string) =>
-    request<OwnerStatusResponse>(`/owner/status?ownerSecret=${encodeURIComponent(ownerSecret)}`, { auth: false }),
-  ownerPendingAdmins: (ownerSecret: string) =>
-    request<{ pendingAdmins: AuthUser[] }>(`/owner/admins/pending?ownerSecret=${encodeURIComponent(ownerSecret)}`, { auth: false }),
-  ownerApproveAdmin: (ownerSecret: string, userId: string) =>
+  ownerStatus: () =>
+    request<OwnerStatusResponse>('/owner/status'),
+  ownerPendingAdmins: () =>
+    request<{ pendingAdmins: AuthUser[] }>('/owner/admins/pending'),
+  ownerApproveAdmin: (userId: string) =>
     request<{ message: string; user: AuthUser }>(`/owner/admins/${encodeURIComponent(userId)}/approve`, {
       method: 'POST',
-      body: JSON.stringify({ ownerSecret }),
-      auth: false,
+      body: JSON.stringify({}),
     }),
-  ownerDenyAdmin: (ownerSecret: string, userId: string) =>
+  ownerDenyAdmin: (userId: string) =>
     request<{ message: string; user: AuthUser }>(`/owner/admins/${encodeURIComponent(userId)}/deny`, {
       method: 'POST',
-      body: JSON.stringify({ ownerSecret }),
-      auth: false,
+      body: JSON.stringify({}),
     }),
   verifyAdminOtp: (payload: { otpSessionToken: string; otp: string }) =>
     request<AuthSessionResponse>('/otp/admin/verify', { method: 'POST', body: JSON.stringify(payload), auth: false }),
