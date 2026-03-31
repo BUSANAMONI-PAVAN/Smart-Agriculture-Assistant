@@ -59,6 +59,7 @@ export type AuthSessionResponse = {
 export type FarmerRegisterPayload = {
   name: string;
   phone: string;
+  email?: string;
 };
 
 export type FarmerLoginPayload = {
@@ -162,6 +163,23 @@ export type OwnerStatusResponse = {
 export type OwnerLoginPayload = {
   name: string;
   password: string;
+};
+
+export type OwnerCreateUserPayload = {
+  role: 'admin' | 'farmer';
+  name: string;
+  phone?: string;
+  email?: string;
+  password?: string;
+};
+
+export type OwnerUpdateUserPayload = {
+  role?: 'admin' | 'farmer';
+  name?: string;
+  phone?: string;
+  email?: string;
+  password?: string;
+  status?: 'active' | 'disabled' | 'pending';
 };
 
 export type CropRecommendationPayload = {
@@ -657,6 +675,22 @@ export const api = {
     request<{ message: string; user: AuthUser }>(`/owner/admins/${encodeURIComponent(userId)}/deny`, {
       method: 'POST',
       body: JSON.stringify({}),
+    }),
+  ownerUsers: () =>
+    request<{ users: AuthUser[] }>('/owner/users'),
+  ownerCreateUser: (payload: OwnerCreateUserPayload) =>
+    request<{ message: string; user: AuthUser }>('/owner/users', {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    }),
+  ownerUpdateUser: (userId: string, payload: OwnerUpdateUserPayload) =>
+    request<{ message: string; user: AuthUser }>(`/owner/users/${encodeURIComponent(userId)}`, {
+      method: 'PATCH',
+      body: JSON.stringify(payload),
+    }),
+  ownerDeleteUser: (userId: string) =>
+    request<{ message: string; user: AuthUser }>(`/owner/users/${encodeURIComponent(userId)}`, {
+      method: 'DELETE',
     }),
   verifyAdminOtp: (payload: { otpSessionToken: string; otp: string }) =>
     request<AuthSessionResponse>('/otp/admin/verify', { method: 'POST', body: JSON.stringify(payload), auth: false }),

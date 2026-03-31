@@ -58,10 +58,20 @@ function normalizeFromHeader(value) {
   return trimmed;
 }
 
+function readRedirectMode() {
+  const rawMode = normalizeEnvValue(process.env.EMAIL_REDIRECT_MODE || 'fallback').toLowerCase();
+  if (rawMode !== 'all') {
+    return 'fallback';
+  }
+
+  const allowAll = normalizeEnvValue(process.env.EMAIL_REDIRECT_ALLOW_ALL || 'false').toLowerCase() === 'true';
+  return allowAll ? 'all' : 'fallback';
+}
+
 function remapLegacyRecipientEmail(email) {
   const original = extractEmailAddress(email);
   const forcedRecipient = extractEmailAddress(process.env.EMAIL_REDIRECT_TO);
-  const redirectMode = normalizeEnvValue(process.env.EMAIL_REDIRECT_MODE || 'fallback');
+  const redirectMode = readRedirectMode();
   if (forcedRecipient && redirectMode === 'all') {
     return forcedRecipient;
   }
@@ -125,7 +135,7 @@ export function getEmailDeliveryConfigSummary() {
   const service = readSmtpService();
   const host = readSmtpHost();
   const user = readSmtpUser();
-  const redirectMode = normalizeEnvValue(process.env.EMAIL_REDIRECT_MODE || 'fallback');
+  const redirectMode = readRedirectMode();
   const redirectTo = extractEmailAddress(process.env.EMAIL_REDIRECT_TO);
 
   return {

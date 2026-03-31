@@ -2,6 +2,8 @@ import { Router } from 'express';
 import { timingSafeEqual } from 'node:crypto';
 import { z } from 'zod';
 import {
+  createManagedUser,
+  deleteUserByAdmin,
   ensureOwnerAdmin,
   getUserById,
   listUsers,
@@ -9,6 +11,8 @@ import {
 } from '../auth/auth.store.js';
 import { issueAccessToken, verifyToken } from '../auth/token.service.js';
 import { listFeatureFlags } from '../admin/feature.store.js';
+import { addAlert } from '../alerts/alerts.store.js';
+import { appendAuditLog } from '../admin/audit.store.js';
 import {
   getEmailDeliveryConfigSummary,
   isEmailTransportConfigured,
@@ -42,6 +46,23 @@ const ownerMailTestSchema = z.object({
   email: z.string().trim().email(),
   subject: z.string().trim().min(3).max(180).optional(),
   message: z.string().trim().min(3).max(2000).optional(),
+}).strict();
+
+const ownerCreateUserSchema = z.object({
+  role: z.enum(['farmer', 'admin']),
+  name: z.string().trim().min(2).max(120),
+  phone: z.string().trim().min(7).max(25).optional(),
+  email: z.string().trim().email().optional(),
+  password: z.string().min(8).max(120).optional(),
+}).strict();
+
+const ownerUpdateUserSchema = z.object({
+  role: z.enum(['farmer', 'admin']).optional(),
+  name: z.string().trim().min(2).max(120).optional(),
+  phone: z.string().trim().min(7).max(25).optional(),
+  email: z.string().trim().email().optional(),
+  password: z.string().min(8).max(120).optional(),
+  status: z.enum(['active', 'disabled', 'pending']).optional(),
 }).strict();
 
 function readOwnerSecret(req) {
@@ -84,6 +105,54 @@ function ownerLoginName() {
 
 function ownerLoginPassword() {
   return String(process.env.OWNER_LOGIN_PASSWORD || 'peeter');
+}
+
+function ownerActorFromRequest(req) {
+  const ownerUser = req.owner?.user || null;
+  return {
+    id: ownerUser?.id || null,
+    name: String(ownerUser?.name || ownerName() || 'Owner').trim(),
+    email: String(ownerUser?.email || ownerEmail() || '').trim(),
+  };
+}
+
+function formatActionTime(now = new Date()) {
+  const local = new Intl.DateTimeFormat('en-IN', {
+    dateStyle: 'full',
+    timeStyle: 'medium',
+    timeZone: 'Asia/Kolkata',
+  }).format(now);
+
+  return {
+    local,
+    iso: now.toISOString(),
+  };
+}
+
+function buildAccountActionMessage({ action, targetUser, actor, actionTime, extra = '' }) {
+  const targetName = String(targetUser?.name || 'Unknown user').trim() || 'Unknown user';
+  const targetRole = String(targetUser?.role || 'unknown').trim() || 'unknown';
+  const targetEmail = String(targetUser?.email || '').trim() || 'Not available';
+  const targetPhone = String(targetUser?.phone || '').trim() || 'Not available';
+  const actorName = String(actor?.name || 'Owner').trim() || 'Owner';
+  const actorEmail = String(actor?.email || '').trim() || 'Not available';
+
+  const lines = [
+    `Your Smart Agriculture account was ${action} by the owner.`,
+    `Account name: ${targetName}`,
+    `Account role: ${targetRole}`,
+    `Account email: ${targetEmail}`,
+    `Account phone: ${targetPhone}`,
+    `Action by: ${actorName} (${actorEmail})`,
+    `Action time (India): ${actionTime.local}`,
+    `Action time (UTC): ${actionTime.iso}`,
+  ];
+
+  if (extra) {
+    lines.push(extra);
+  }
+  lines.push('If this is unexpected, contact Smart Agriculture support.');
+  return lines.join(' ');
 }
 
 function compareSecrets(input, expected) {
@@ -220,12 +289,187 @@ router.get('/admins/pending', requireOwner, async (_req, res) => {
   res.json({ pendingAdmins });
 });
 
+router.get('/users', requireOwner, async (_req, res) => {
+  const users = await listUsers();
+  res.json({ users });
+});
+
+router.post('/users', validateRequest({ body: ownerCreateUserSchema }), requireOwner, async (req, res) => {
+  const actor = ownerActorFromRequest(req);
+  const user = await createManagedUser(req.body || {});
+  const actionTime = formatActionTime(new Date());
+
+  if (actor.id) {
+    await appendAuditLog({
+      actorUserId: actor.id,
+      targetUserId: user.id,
+      action: 'owner.user.create',
+      detail: `Owner created ${user.role} user "${user.name}".`,
+      payload: {
+        role: user.role,
+        email: user.email || null,
+        phone: user.phone || null,
+      },
+    });
+
+    await addAlert({
+      userId: actor.id,
+      type: 'system',
+      level: 'high',
+      title: 'Owner created user',
+      message: `${user.role} account created for ${user.name}.`,
+      source: 'owner-user-create',
+      metadata: {
+        targetUserId: user.id,
+      },
+    });
+  }
+
+  if (user.email) {
+    await sendSystemEmail({
+      email: user.email,
+      subject: `Smart Agriculture account created: ${user.name}`,
+      title: 'Account created by owner',
+      message: buildAccountActionMessage({
+        action: 'created',
+        targetUser: user,
+        actor,
+        actionTime,
+        extra: 'You can now use Smart Agriculture with this account.',
+      }),
+      category: 'owner-user-create',
+    });
+  }
+
+  res.status(201).json({ message: 'User created by owner.', user });
+});
+
+router.patch('/users/:id', validateRequest({ params: idParamSchema, body: ownerUpdateUserSchema }), requireOwner, async (req, res) => {
+  const actor = ownerActorFromRequest(req);
+  const updated = await updateUserByAdmin(req.params.id, req.body || {});
+  const actionTime = formatActionTime(new Date());
+
+  if (actor.id) {
+    await appendAuditLog({
+      actorUserId: actor.id,
+      targetUserId: updated.id,
+      action: 'owner.user.update',
+      detail: `Owner updated user "${updated.name}" (${updated.role}).`,
+      payload: req.body || {},
+    });
+
+    await addAlert({
+      userId: actor.id,
+      type: 'system',
+      level: 'high',
+      title: 'Owner updated user',
+      message: `${updated.name} account details were updated by owner.`,
+      source: 'owner-user-update',
+      metadata: {
+        targetUserId: updated.id,
+      },
+    });
+  }
+
+  if (updated.email) {
+    const patchSummary = Object.entries(req.body || {})
+      .map(([key, value]) => `${key}=${String(value)}`)
+      .join(', ');
+
+    await sendSystemEmail({
+      email: updated.email,
+      subject: `Smart Agriculture account updated: ${updated.name}`,
+      title: 'Account updated by owner',
+      message: buildAccountActionMessage({
+        action: 'updated',
+        targetUser: updated,
+        actor,
+        actionTime,
+        extra: patchSummary ? `Updated fields: ${patchSummary}` : 'Your account details were updated by owner.',
+      }),
+      category: 'owner-user-update',
+    });
+  }
+
+  res.json({ message: 'User updated by owner.', user: updated });
+});
+
+router.delete('/users/:id', validateRequest({ params: idParamSchema }), requireOwner, async (req, res) => {
+  const actor = ownerActorFromRequest(req);
+  const removedAt = formatActionTime(new Date());
+  const user = await deleteUserByAdmin(req.params.id, actor.id || '__owner__');
+
+  if (actor.id) {
+    await appendAuditLog({
+      actorUserId: actor.id,
+      targetUserId: user.id,
+      action: 'owner.user.delete',
+      detail: `Owner removed user "${user.name}" (${user.role}) at ${removedAt.iso}.`,
+      payload: {
+        role: user.role,
+        email: user.email || null,
+        phone: user.phone || null,
+        removedByName: actor.name,
+        removedByEmail: actor.email || null,
+        removedAt: removedAt.iso,
+      },
+    });
+
+    await addAlert({
+      userId: actor.id,
+      type: 'system',
+      level: 'high',
+      title: 'Owner removed user',
+      message: `${user.name} (${user.role}) was removed by owner.`,
+      source: 'owner-user-delete',
+      metadata: {
+        targetUserId: user.id,
+      },
+    });
+  }
+
+  if (user.email) {
+    await sendSystemEmail({
+      email: user.email,
+      subject: `Smart Agriculture account removed: ${user.name}`,
+      title: 'Account removed by owner',
+      message: buildAccountActionMessage({
+        action: 'removed',
+        targetUser: user,
+        actor,
+        actionTime: removedAt,
+      }),
+      category: 'owner-user-delete',
+    });
+  }
+
+  res.json({ message: 'User removed by owner.', user });
+});
+
 router.post(
   '/admins/:id/approve',
   validateRequest({ params: idParamSchema, body: ownerPendingActionSchema }),
   requireOwner,
   async (req, res) => {
+    const actor = ownerActorFromRequest(req);
     const updated = await updateUserByAdmin(req.params.id, { status: 'active' });
+
+    if (updated.email) {
+      await sendSystemEmail({
+        email: updated.email,
+        subject: 'Smart Agriculture admin access approved',
+        title: 'Admin access approved',
+        message: buildAccountActionMessage({
+          action: 'approved',
+          targetUser: updated,
+          actor,
+          actionTime: formatActionTime(new Date()),
+          extra: 'Your admin signup request is approved. You can log in now.',
+        }),
+        category: 'owner-admin-approve',
+      });
+    }
+
     res.json({
       message: 'Admin access approved.',
       user: updated,
@@ -238,11 +482,29 @@ router.post(
   validateRequest({ params: idParamSchema, body: ownerPendingActionSchema }),
   requireOwner,
   async (req, res) => {
+    const actor = ownerActorFromRequest(req);
     const current = await getUserById(req.params.id);
     if (!current) {
       throw new AppError(404, 'User not found.');
     }
     const updated = await updateUserByAdmin(req.params.id, { status: 'disabled' });
+
+    if (updated.email) {
+      await sendSystemEmail({
+        email: updated.email,
+        subject: 'Smart Agriculture admin access denied',
+        title: 'Admin access denied',
+        message: buildAccountActionMessage({
+          action: 'denied',
+          targetUser: updated,
+          actor,
+          actionTime: formatActionTime(new Date()),
+          extra: 'Your admin signup request was denied. Contact owner for details.',
+        }),
+        category: 'owner-admin-deny',
+      });
+    }
+
     res.json({
       message: 'Admin access denied.',
       user: updated,
