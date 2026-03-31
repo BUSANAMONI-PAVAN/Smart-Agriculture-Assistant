@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { AppError } from '../../lib/errors.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'smart-agriculture-local-secret';
 
@@ -46,5 +47,16 @@ export function issueActionProofToken(userId, purpose) {
 }
 
 export function verifyToken(token) {
-  return jwt.verify(token, JWT_SECRET);
+  try {
+    return jwt.verify(token, JWT_SECRET);
+  } catch (error) {
+    const name = String(error?.name || '');
+    if (name === 'TokenExpiredError') {
+      throw new AppError(401, 'Token expired. Please request a new token.');
+    }
+    if (name === 'JsonWebTokenError' || name === 'NotBeforeError') {
+      throw new AppError(401, 'Invalid token.');
+    }
+    throw error;
+  }
 }
