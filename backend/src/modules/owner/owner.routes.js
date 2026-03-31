@@ -152,7 +152,7 @@ function buildAccountActionMessage({ action, targetUser, actor, actionTime, extr
     lines.push(extra);
   }
   lines.push('If this is unexpected, contact Smart Agriculture support.');
-  return lines.join(' ');
+  return lines.join('\n');
 }
 
 function compareSecrets(input, expected) {
