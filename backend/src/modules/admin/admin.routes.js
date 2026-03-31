@@ -47,6 +47,14 @@ const updateFeaturesSchema = z.object({
   })).max(120),
 }).strict();
 
+function isOwnerUser(user) {
+  const configuredOwnerEmail = String(process.env.OWNER_EMAIL || '').trim().toLowerCase();
+  if (!configuredOwnerEmail) {
+    return false;
+  }
+  return String(user?.email || '').trim().toLowerCase() === configuredOwnerEmail;
+}
+
 function formatRemovalTime(now = new Date()) {
   const local = new Intl.DateTimeFormat('en-IN', {
     dateStyle: 'full',
@@ -59,7 +67,7 @@ function formatRemovalTime(now = new Date()) {
   };
 }
 
-function buildRemovalMessage(targetUser, actorUser, removedAt) {
+function buildAccountActionMessage({ action, targetUser, actorUser, actionTime, extra = '' }) {
   const actorName = String(actorUser?.name || 'System administrator').trim() || 'System administrator';
   const actorEmail = String(actorUser?.email || '').trim() || 'Not available';
   const targetName = String(targetUser?.name || 'Unknown user').trim() || 'Unknown user';
@@ -67,20 +75,29 @@ function buildRemovalMessage(targetUser, actorUser, removedAt) {
   const targetEmail = String(targetUser?.email || '').trim() || 'Not available';
   const targetPhone = String(targetUser?.phone || '').trim() || 'Not available';
 
-  return [
-    `Your Smart Agriculture account has been removed.`,
-    `Removed account name: ${targetName}`,
-    `Removed account role: ${targetRole}`,
-    `Removed account email: ${targetEmail}`,
-    `Removed account phone: ${targetPhone}`,
-    `Removed by: ${actorName} (${actorEmail})`,
-    `Removal time (India): ${removedAt.local}`,
-    `Removal time (UTC): ${removedAt.iso}`,
-    `If this is unexpected, contact Smart Agriculture support.`,
-  ].join(' ');
+  const lines = [
+    `Your Smart Agriculture account was ${action}.`,
+    `Account name: ${targetName}`,
+    `Account role: ${targetRole}`,
+    `Account email: ${targetEmail}`,
+    `Account phone: ${targetPhone}`,
+    `Action by: ${actorName} (${actorEmail})`,
+    `Action time (India): ${actionTime.local}`,
+    `Action time (UTC): ${actionTime.iso}`,
+  ];
+
+  if (extra) {
+    lines.push(extra);
+  }
+  lines.push('If this is unexpected, contact Smart Agriculture support.');
+  return lines.join(' ');
 }
 
 function readSystemControlProof(req) {
+  if (isOwnerUser(req.auth?.user)) {
+    return;
+  }
+
   const token = req.body?.otpProofToken || req.headers['x-otp-proof'];
   if (!token || typeof token !== 'string') {
     throw new AppError(403, 'OTP verification is required for system control.');
@@ -141,6 +158,7 @@ router.get('/users', async (_req, res) => {
 router.post('/users', validateRequest({ body: createUserSchema }), async (req, res) => {
   readSystemControlProof(req);
   const user = await createManagedUser(req.body || {});
+  const actionTime = formatRemovalTime(new Date());
   await appendAuditLog({
     actorUserId: req.auth.user.id,
     targetUserId: user.id,
@@ -166,11 +184,18 @@ router.post('/users', validateRequest({ body: createUserSchema }), async (req, r
   });
 
   if (user.email) {
+    const message = buildAccountActionMessage({
+      action: 'created',
+      targetUser: user,
+      actorUser: req.auth.user,
+      actionTime,
+      extra: 'You can now log in and use Smart Agriculture.',
+    });
     await sendSystemEmail({
       email: user.email,
-      subject: 'Smart Agriculture account created',
-      title: 'Account ready',
-      message: `Your ${user.role} account has been created and is ready to use.`,
+      subject: `Smart Agriculture account created: ${user.name}`,
+      title: 'Account created notification',
+      message,
       category: 'admin-user-create',
     });
   }
@@ -181,6 +206,7 @@ router.post('/users', validateRequest({ body: createUserSchema }), async (req, r
 router.patch('/users/:id', validateRequest({ params: idParamSchema, body: updateUserSchema }), async (req, res) => {
   readSystemControlProof(req);
   const user = await updateUserByAdmin(req.params.id, req.body || {});
+  const actionTime = formatRemovalTime(new Date());
   await appendAuditLog({
     actorUserId: req.auth.user.id,
     targetUserId: user.id,
@@ -202,11 +228,22 @@ router.patch('/users/:id', validateRequest({ params: idParamSchema, body: update
   });
 
   if (user.email) {
+    const patchSummary = Object.entries(req.body || {})
+      .filter(([key]) => key !== 'otpProofToken' && key !== 'password')
+      .map(([key, value]) => `${key}=${String(value)}`)
+      .join(', ');
+    const message = buildAccountActionMessage({
+      action: 'updated',
+      targetUser: user,
+      actorUser: req.auth.user,
+      actionTime,
+      extra: patchSummary ? `Updated fields: ${patchSummary}` : 'Your account details were updated.',
+    });
     await sendSystemEmail({
       email: user.email,
-      subject: 'Smart Agriculture account updated',
-      title: 'Account update notice',
-      message: 'Your account details were updated by an administrator.',
+      subject: `Smart Agriculture account updated: ${user.name}`,
+      title: 'Account updated notification',
+      message,
       category: 'admin-user-update',
     });
   }
@@ -245,7 +282,13 @@ router.delete('/users/:id', validateRequest({ params: idParamSchema, body: delet
   });
 
   if (user.email) {
-    const removalMessage = buildRemovalMessage(user, req.auth.user, removedAt);
+    const removalMessage = buildAccountActionMessage({
+      action: 'removed',
+      targetUser: user,
+      actorUser: req.auth.user,
+      actionTime: removedAt,
+      extra: '',
+    });
     await sendSystemEmail({
       email: user.email,
       subject: `Smart Agriculture account removed: ${user.name}`,

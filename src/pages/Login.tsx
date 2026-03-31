@@ -10,6 +10,7 @@ type AuthRole = 'farmer' | 'admin';
 type FarmerForm = {
   name: string;
   phone: string;
+  email: string;
 };
 
 type AdminForm = {
@@ -21,6 +22,7 @@ type AdminForm = {
 const INITIAL_FARMER_FORM: FarmerForm = {
   name: '',
   phone: '',
+  email: '',
 };
 
 const INITIAL_ADMIN_FORM: AdminForm = {
@@ -104,7 +106,7 @@ export function Login() {
     try {
       const session =
         mode === 'register'
-          ? await api.farmerRegister({ name: farmerForm.name, phone: farmerForm.phone })
+          ? await api.farmerRegister({ name: farmerForm.name, phone: farmerForm.phone, email: farmerForm.email || undefined })
           : await api.farmerLogin({ phone: farmerForm.phone });
 
       acceptSession(session);
@@ -326,6 +328,18 @@ export function Login() {
                     onChange={(event) => setFarmerForm((prev) => ({ ...prev, name: event.target.value }))}
                     required
                     placeholder="Enter name"
+                    className="w-full bg-transparent text-[0.98rem] text-white outline-none placeholder:text-white/48"
+                  />
+                </UnderlineField>
+              )}
+
+              {mode === 'register' && (
+                <UnderlineField label="Email (Optional)" icon={<Mail size={17} />}>
+                  <input
+                    type="email"
+                    value={farmerForm.email}
+                    onChange={(event) => setFarmerForm((prev) => ({ ...prev, email: event.target.value }))}
+                    placeholder="Enter email for alerts"
                     className="w-full bg-transparent text-[0.98rem] text-white outline-none placeholder:text-white/48"
                   />
                 </UnderlineField>

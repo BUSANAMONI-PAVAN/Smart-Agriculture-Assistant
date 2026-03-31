@@ -146,6 +146,7 @@ export function findFarmerByPhoneLocal(phone) {
 export function createFarmerLocal(payload) {
   const name = String(payload.name || '').trim();
   const phone = normalizePhone(payload.phone);
+  const email = normalizeEmail(payload.email);
 
   if (!name) {
     throw new AppError(400, 'Name is required.');
@@ -161,13 +162,20 @@ export function createFarmerLocal(payload) {
       throw new AppError(409, 'User already exists, please login');
     }
 
+    if (email) {
+      const emailOwner = db.users.find((user) => normalizeEmail(user.email) === email);
+      if (emailOwner) {
+        throw new AppError(409, 'Email is already in use.');
+      }
+    }
+
     const timestamp = nowIso();
     const row = {
       id: randomUUID(),
       role: 'farmer',
       name,
       phone,
-      email: null,
+      email: email || null,
       passwordHash: null,
       status: 'active',
       createdAt: timestamp,
@@ -370,7 +378,15 @@ export function updateUserByAdminLocal(userId, patch) {
         throw new AppError(409, 'Phone number is already in use.');
       }
 
-      nextEmail = null;
+      nextEmail = patch.email !== undefined ? normalizeEmail(patch.email) : normalizeEmail(current.email);
+      if (nextEmail) {
+        const emailOwner = db.users.find((entry) => normalizeEmail(entry.email) === nextEmail && entry.id !== userId);
+        if (emailOwner) {
+          throw new AppError(409, 'Email is already in use.');
+        }
+      } else {
+        nextEmail = null;
+      }
       nextPasswordHash = null;
     } else {
       nextEmail = patch.email ? normalizeEmail(patch.email) : normalizeEmail(current.email);

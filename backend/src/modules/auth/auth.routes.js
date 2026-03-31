@@ -17,6 +17,7 @@ const router = Router();
 const farmerRegisterSchema = z.object({
   name: z.string().trim().min(2).max(120),
   phone: z.string().trim().min(7).max(25),
+  email: z.string().trim().email().optional(),
 }).strict();
 
 const farmerLoginSchema = z.object({
@@ -91,6 +92,7 @@ router.post('/farmer/register', validateRequest({ body: farmerRegisterSchema }),
   await updateProfile(user.id, {
     name: user.name,
     phone: user.phone,
+    email: user.email || '',
     role: 'farmer',
   }, user);
   await addAlert({

@@ -111,6 +111,7 @@ export async function findFarmerByPhone(phone) {
 export async function createFarmer(payload) {
   const name = String(payload.name || '').trim();
   const phone = normalizePhone(payload.phone);
+  const email = normalizeEmail(payload.email);
 
   if (!name) {
     throw new AppError(400, 'Name is required.');
@@ -126,18 +127,25 @@ export async function createFarmer(payload) {
         throw new AppError(409, 'User already exists, please login');
       }
 
+      if (email) {
+        const emailOwner = await fetchOne('SELECT id FROM users WHERE email = ?', [email]);
+        if (emailOwner) {
+          throw new AppError(409, 'Email is already in use.');
+        }
+      }
+
       const id = randomUUID();
       await query(
         `
-          INSERT INTO users (id, role, name, phone, status)
-          VALUES (?, 'farmer', ?, ?, 'active')
+          INSERT INTO users (id, role, name, phone, email, status)
+          VALUES (?, 'farmer', ?, ?, ?, 'active')
         `,
-        [id, name, phone],
+        [id, name, phone, email || null],
       );
 
       return getUserById(id);
     },
-    () => createFarmerLocal({ name, phone }),
+    () => createFarmerLocal({ name, phone, email }),
   );
 }
 
@@ -433,7 +441,15 @@ export async function updateUserByAdmin(userId, patch) {
           throw new AppError(409, 'Phone number is already in use.');
         }
 
-        nextEmail = null;
+        nextEmail = patch.email !== undefined ? normalizeEmail(patch.email) : normalizeEmail(current.email);
+        if (nextEmail) {
+          const emailOwner = await fetchOne('SELECT id FROM users WHERE email = ? AND id <> ?', [nextEmail, userId]);
+          if (emailOwner) {
+            throw new AppError(409, 'Email is already in use.');
+          }
+        } else {
+          nextEmail = null;
+        }
         nextPasswordHash = null;
       } else {
         nextEmail = patch.email ? normalizeEmail(patch.email) : normalizeEmail(current.email);
